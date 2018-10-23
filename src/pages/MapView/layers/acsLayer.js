@@ -1,6 +1,7 @@
 const HOST = 'https://tig.nymtc.org/'
 const npmrdsLayer = {
 	name: 'Census ACS',
+	loading: false,
 	mapBoxSources: {
   	},
   	type: 'Road Lines',

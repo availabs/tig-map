@@ -1,4 +1,7 @@
-const HOST = 'https://tig.nymtc.org/'
+let d3scale = require('d3-scale')
+
+const HOST = '/' //'https://tig.nymtc.org/'
+
 const npmrdsLayer = {
 	name: 'NPMRDS',
 	mapBoxSources: {
@@ -19,7 +22,7 @@ const npmrdsLayer = {
 		      'line-cap': 'round'
 		    },
 		    paint: {
-		      'line-color': 'pink',
+		      'line-color': 'white',
 		      'line-width': {
 		        base: 1.5,
 		        stops: [[3, 1], [13, 5], [18, 8]]
@@ -41,7 +44,7 @@ const npmrdsLayer = {
 		      'line-cap': 'round'
 		    },
 		    paint: {
-		      'line-color': 'pink',
+		      'line-color': 'white',
 		      'line-width': {
 		        base: 1.5,
 		        stops: [[5, 1], [18, 7]]
@@ -66,13 +69,19 @@ const npmrdsLayer = {
 			name: 'Month',
 			type: 'dropdown',
 			options: ['January','February','March'],
-			value: 'February'
+			value: '1'
 		},
 		day_of_week: {
 			name: 'Day Of Week',
 			type: 'dropdown',
 			options: ['Monday', 'Tuesday', 'Wednesday'],
 			value: 'Tuesday'
+		},
+		hour: {
+			name: 'Hour',
+			type: 'dropdown',
+			options: [0,1,2,3,4,5,6,7,8,9],
+			value: 9
 		},
 		vehicle_class: {
 			name: 'Vehicle Class',
@@ -83,16 +92,40 @@ const npmrdsLayer = {
 	},
 	onAdd: addLayers,
 	onRemove: removeLayers,
-	active: false
+	active: false,
+	fetchData: fetchData,
+	receiveData: receiveData
 }
 
 function fetchData ( layer ) {
-	return fetch(`${HOST}views/19/data_overlay?utf8=%E2%9C%93&year=${layer.filters.year.value}&month=${layer.filters.month.value}&day_of_week=${layer.filters.month.value}&hour=${layer.filters.hour.value}&vehicle_class=${layer.filters.vehicle_class.value}&direction=&lower=&upper=`)
+	console.log(
+		layer.filters.year.value,
+		layer.filters.month.value,
+		layer.filters.day_of_week.value,
+		layer.filters.hour.value
+
+	)
+	return fetch(`${HOST}views/19/data_overlay?utf8=%E2%9C%93&year=${layer.filters.year.value}&month=${layer.filters.month.value}&day_of_week=${layer.filters.day_of_week.value}&hour=${layer.filters.hour.value}&vehicle_class=${layer.filters.vehicle_class.value}&direction=&lower=&upper=`)
 		.then(response => response.json())
 }
 
-function recieveData ( layer, map) {
+function receiveData ( data, map, range, domain) {
+	console.log('got the data', data)
+	let colorScale = d3scale.scaleThreshold()
+	    .domain(domain)
+	    .range(range)
 
+	let colors = data.data.reduce((final, tmc, i) => {
+	    if(!tmc.speed){
+	      final[tmc.tmc_id] = '#343a41' //if no data for day & epoch make segment background color
+	    } else {
+	      final[tmc.tmc_id] = colorScale(tmc.speed)
+	    }
+	    return final
+	},{})
+
+	map.setPaintProperty('interstate-symbology', 'line-color', ["get", ["to-string", ["get", "tmc"]], ["literal", colors]]);
+    map.setPaintProperty('primary-symbology', 'line-color', ["get", ["to-string", ["get", "tmc"]], ["literal", colors]]);
 } 
 
 function removeLayers (map) {

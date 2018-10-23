@@ -14,29 +14,53 @@ const FETCH_LAYER_DATA_ERROR = 'FETCH_LAYER_DATA_ERROR'
 // Actions
 // ------------------------------------
 
-export const activateLayer = layer => {
-   return dispatch => (
-    dispatch({
+export const activateLayer = layerName => {
+  return dispatch =>
+    (dispatch({
       type: ACTIVATE_LAYER,
-      layer
-    }), Promise.resolve())
+      layerName
+    }),
+    Promise.resolve())
+    .then(() => dispatch(fetchLayerData(layerName)))
+   
 }
 
 export const initializeMap = map => {
-   return dispatch => (
-    dispatch({
+  return dispatch => {
+    return dispatch({
       type: INITIALIZE_MAP,
       map
-    }), Promise.resolve())
+    })
+  }
 }
 
-export const recieveLayerData = (layerName,data) => {
-   return dispatch => (
-    dispatch({
-      type: INITIALIZE_MAP,
-      layerName,
-      data
-    }), Promise.resolve())
+export const receiveData = (data,layerName) => {
+  return dispatch => {
+    return dispatch({
+      type: FETCH_LAYER_DATA_SUCESS,
+      data,
+      layerName
+    })
+  }
+}
+
+export const fetchLayerData = (layerName) => {
+  return  (dispatch, getState) => {
+    return (dispatch({
+      type: FETCH_LAYER_DATA,
+      layerName
+    }),Promise.resolve()).then(()=> {
+      console.log('getState', getState, getState())
+      if(getState().map.layers[layerName].fetchData) {
+        return getState().map.layers[layerName].fetchData(getState().map.layers[layerName])
+        .then(data => {
+          dispatch(receiveData(data,layerName))
+        })
+      } else {
+        return Promise.resolve();
+      }
+    })
+  }
 }
 
 // export const fetchLayerData = (layerName) => {
@@ -65,8 +89,8 @@ export const recieveLayerData = (layerName,data) => {
 let initialState = {
   layers,
   map: null,
-  activeRange: ['#2266b2', '#479acf', '#9bd0ea', '#f4ae8c', '#dc6147', '#b11021'],
-  activeDomain: [0,2,5,15,20],
+  activeRange: ['#b11021','#dc6147','#f4ae8c','#9bd0ea','#479acf','#2266b2'],
+  activeDomain: [10,20,30,40,55],
   loadingTMC: false,
   theme: LightTheme,
   update: 0
@@ -79,12 +103,11 @@ const ACTION_HANDLERS = {
   [ACTIVATE_LAYER]: (state = initialState, action) => {
     let newState = Object.assign({}, state);
     if(state.map){
-      let newLayer = newState.layers[action.layer]
+      let newLayer = newState.layers[action.layerName]
       if(newLayer.onAdd){
         newLayer.onAdd(state.map)
       }
       newLayer.active = true
-      
     }
     newState.update += 1;
     return newState;
@@ -93,7 +116,20 @@ const ACTION_HANDLERS = {
     let newState = Object.assign({}, state);
     newState.map = action.map
     return newState;
-  }
+  },
+  [FETCH_LAYER_DATA]: (state = initialState, action) => {
+    let newState = Object.assign({}, state);
+    newState.layers[action.layerName].loading = true;
+    return newState;
+  },
+  [FETCH_LAYER_DATA_SUCESS]: (state = initialState, action) => {
+    let newState = Object.assign({}, state);
+    newState.layers[action.layerName].loading = false;
+    if(state.map) {
+      newState.layers[action.layerName].receiveData(action.data, state.map, state.activeRange, state.activeDomain)
+    }
+    return newState;
+  },
 };
 
 export default function TigMapReducer(state = initialState, action) {
