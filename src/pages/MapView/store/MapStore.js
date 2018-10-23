@@ -7,7 +7,9 @@ import LightTheme from 'components/common/themes/light'
 // ------------------------------------
 const ACTIVATE_LAYER = 'ACTIVATE_LAYER'
 const INITIALIZE_MAP = 'INITIALIZE_MAP'
-
+const FETCH_LAYER_DATA = 'FETCH_LAYER_DATA'
+const FETCH_LAYER_DATA_SUCESS = 'FETCH_LAYER_DATA_SUCESS'
+const FETCH_LAYER_DATA_ERROR = 'FETCH_LAYER_DATA_ERROR'
 // ------------------------------------
 // Actions
 // ------------------------------------
@@ -27,6 +29,32 @@ export const initializeMap = map => {
       map
     }), Promise.resolve())
 }
+
+export const recieveLayerData = (layerName,data) => {
+   return dispatch => (
+    dispatch({
+      type: INITIALIZE_MAP,
+      layerName,
+      data
+    }), Promise.resolve())
+}
+
+// export const fetchLayerData = (layerName) => {
+//   return dispatch => {
+//     // console.log('----- USER LOGIN -----');
+    
+//     return fetch(`${HOST}login/auth`, {
+//       method: 'POST',
+//       headers: {
+//         Accept: 'application/json, text/plain, */*',
+//         'Content-Type': 'application/json'
+//       },
+//       body: JSON.stringify({ email: user.email, password: user.password, token: user.token })
+//     })
+//       .then(response => response.json())
+//       .then(json => dispatch(receiveAuthResponse(json.message || json)));
+//   };
+// };
 
 
 
