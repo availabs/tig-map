@@ -20,7 +20,7 @@ import thunk from 'redux-thunk'
 //   }
 // }
 
-const history = createHistory()
+const history = createHistory({ basename: 'avail-map' })
 
 // Build the middleware for intercepting and dispatching navigation actions
 const middleware = [
