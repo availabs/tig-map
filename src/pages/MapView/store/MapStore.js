@@ -1,28 +1,55 @@
 import layers from '../layers'
-import LightTheme from 'components/common/themes/light'
+import LightTheme from 'components/common/themes/dark'
 // var update = require('react/lib/update')
 
 // ------------------------------------
 // Constants
 // ------------------------------------
-const ACTIVATE_LAYER = 'ACTIVATE_LAYER'
 const INITIALIZE_MAP = 'INITIALIZE_MAP'
+
+
+// Layer Actions
+const ADD_LAYER = 'ADD_LAYER'
+const REMOVE_LAYER = 'REMOVE_LAYER'
+const TOGGLE_LAYER_VISIBILITY = 'TOGGLE_LAYER_VISIBILITY'
+
+
+// Data Actions
 const FETCH_LAYER_DATA = 'FETCH_LAYER_DATA'
 const FETCH_LAYER_DATA_SUCESS = 'FETCH_LAYER_DATA_SUCESS'
 const FETCH_LAYER_DATA_ERROR = 'FETCH_LAYER_DATA_ERROR'
+const UPDATE_LAYER_FILTER = 'UPDATE_LAYER_FILTER' 
+
 // ------------------------------------
 // Actions
 // ------------------------------------
 
-export const activateLayer = layerName => {
+export const addLayer = layerName => {
   return dispatch =>
     (dispatch({
-      type: ACTIVATE_LAYER,
+      type: ADD_LAYER,
       layerName
     }),
     Promise.resolve())
     .then(() => dispatch(fetchLayerData(layerName)))
-   
+}
+
+export const removeLayer = layerName => {
+  return dispatch => {
+    return dispatch({
+      type: REMOVE_LAYER,
+      layerName
+    })
+  }
+}
+
+export const toggleLayerVisibility = layerName => {
+  return dispatch => {
+    return dispatch({
+      type: TOGGLE_LAYER_VISIBILITY,
+      layerName
+    })
+  }
 }
 
 export const initializeMap = map => {
@@ -44,22 +71,46 @@ export const receiveData = (data,layerName) => {
   }
 }
 
-export const fetchLayerData = (layerName) => {
-  return  (dispatch, getState) => {
-    return (dispatch({
-      type: FETCH_LAYER_DATA,
-      layerName
-    }),Promise.resolve()).then(()=> {
-      console.log('getState', getState, getState())
-      if(getState().map.layers[layerName].fetchData) {
-        return getState().map.layers[layerName].fetchData(getState().map.layers[layerName])
+export const updateFilter = (layerName, filterName, value) => {
+  return (dispatch, getState) => {
+    return (
+      dispatch({
+        type: UPDATE_LAYER_FILTER,
+        layerName,
+        filterName,
+        value
+      }), 
+      Promise.resolve()
+    ).then(()=> {
+      if(getState().map.layers[layerName].onFilterFetch) {
+        return getState().map.layers[layerName].onFilterFetch(getState().map.layers[layerName])
         .then(data => {
+          console.log('did we get data?')
           dispatch(receiveData(data,layerName))
         })
       } else {
         return Promise.resolve();
       }
     })
+  }
+}
+
+export const fetchLayerData = (layerName) => {
+  return  (dispatch, getState) => {
+    if(getState().map.layers[layerName].fetchData) {
+      return (dispatch({
+        type: FETCH_LAYER_DATA,
+        layerName
+      }),Promise.resolve()).then(()=> {
+        return getState().map.layers[layerName].fetchData(getState().map.layers[layerName])
+        .then(data => {
+          dispatch(receiveData(data,layerName))
+        })
+      })
+    } else {
+      console.warn(`Layer ${layerName} does not define fetchData`)
+      return Promise.resolve();
+    }
   }
 }
 
@@ -100,16 +151,42 @@ let initialState = {
 // Action Handlers
 // ------------------------------------
 const ACTION_HANDLERS = {
-  [ACTIVATE_LAYER]: (state = initialState, action) => {
+  [ADD_LAYER]: (state = initialState, action) => {
     let newState = Object.assign({}, state);
     if(state.map){
       let newLayer = newState.layers[action.layerName]
       if(newLayer.onAdd){
-        newLayer.onAdd(state.map)
+        newLayer.onAdd(newLayer, state.map)
       }
       newLayer.active = true
     }
-    newState.update += 1;
+    newState.update += 1; // hack to force update on deep props
+    return newState;
+  },
+  [REMOVE_LAYER]: (state = initialState, action) => {
+    let newState = Object.assign({}, state);
+    if(state.map){
+      let newLayer = newState.layers[action.layerName]
+      if(newLayer.onRemove){
+        newLayer.onRemove(newLayer, state.map)
+      }
+      newLayer.active = false
+    }
+    newState.update += 1; // hack to force update on deep props
+    return newState;
+  },
+  [TOGGLE_LAYER_VISIBILITY]: (state = initialState, action) => {
+    let newState = Object.assign({}, state);
+    if(state.map){
+      let newLayer = newState.layers[action.layerName]
+      if(newLayer.toggleVisibility){
+        newLayer.toggleVisibility(newLayer, state.map)
+      }
+      console.log(newLayer.visible)
+      newLayer.visible = !newLayer.visible
+      console.log(newLayer.visible)
+    }
+    newState.update += 1; // hack to force update on deep props
     return newState;
   },
   [INITIALIZE_MAP]: (state = initialState, action) => {
@@ -130,6 +207,12 @@ const ACTION_HANDLERS = {
     }
     return newState;
   },
+  [UPDATE_LAYER_FILTER]: (state = initialState, action) => {
+    let newState = Object.assign({}, state);
+    newState.layers[action.layerName].filters[action.filterName].value = action.value
+    newState.update += 1; // hack to force update on deep props
+    return newState
+  }
 };
 
 export default function TigMapReducer(state = initialState, action) {

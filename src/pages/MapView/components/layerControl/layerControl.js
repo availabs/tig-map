@@ -1,27 +1,55 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
-import LayerControlHeader from './layerControlHeader'
+import LayerHeader from './layerHeader'
+import LayerFilterPanel from './layerFilterPanel'
 
+import { removeLayer, toggleLayerVisibility } from '../../store/MapStore'
 
 // import deepEqual from 'deep-equal'
 
  class LayerControl extends Component {
- 
+  state = {
+    showConfig: true
+  }
+  
   render() {
     const { layer, layerName, theme } = this.props
-    console.log('render LayerControl')
     let LayerControlStyle = {
       width: '100%',
       display: 'flex',
       marginBottom: 5,
-      backgroundColor: theme.highlightColor
+      backgroundColor: theme.sidePanelHeaderBg
     }
-    
-    
 
+
+    const removeLayer = () => {
+      this.props.removeLayer(layerName)
+    }
+
+    const toggleConfig = () => {
+      this.setState({showConfig: !this.state.showConfig})
+    }
+
+    const toggleVisibility = () => {
+      this.props.toggleLayerVisibility(layerName)
+    }
+
+    console.log('render lc', layer, layer.visible)
     return (
-      <div className='active-layer-container' style={LayerControlStyle}>
-        <LayerControlHeader layerName={layerName} />
+      <div>
+        <div className='active-layer-container' style={LayerControlStyle}>
+          <LayerHeader 
+            layerName={layerName}
+            onRemoveLayer={removeLayer}
+            onToggleVisibility={toggleVisibility}
+            isVisible={layer.visible}
+            onToggleEnableConfig={toggleConfig}
+          />
+        </div>
+        {this.state.showConfig 
+          ? <LayerFilterPanel layerName={layerName} />
+          : ''
+        }
       </div>
     );
   }
@@ -32,6 +60,8 @@ LayerControl.defaultProps = {
 }
 
 const mapDispatchToProps = {
+  removeLayer,
+  toggleLayerVisibility
 }
 
 const mapStateToProps = (state,ownProps) => {

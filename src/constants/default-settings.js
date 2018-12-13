@@ -19,11 +19,19 @@
 // THE SOFTWARE.
 
 import keyMirror from 'keymirror';
+import {
+  Layers,
+  FilterFunnel,
+  Settings,
+  CursorClick
+} from 'components/common/icons';
+
 
 export const ACTION_PREFIX = '@@kepler.gl/';
 export const CLOUDFRONT = 'https://d1a3f4spazzrp4.cloudfront.net/kepler.gl';
 export const STYLE_PREFIX = `${CLOUDFRONT}/map-styles`;
 export const ICON_PREFIX = `${CLOUDFRONT}/geodude`;
+
 
 // Modal Ids
 export const LAYER_CONFIG_ID = 'copyConfig';
@@ -35,12 +43,7 @@ export const EXPORT_DATA_ID = 'exportData';
 export const EXPORT_CONFIG_ID = 'exportConfig';
 export const ADD_MAP_STYLE_ID = 'addMapStyle';
 
-import {
-  Layers,
-  FilterFunnel,
-  Settings,
-  CursorClick
-} from 'components/common/icons';
+
 
 export const KEPLER_GL_NAME = 'kepler.gl';
 export const KEPLER_GL_VERSION = 'v1.0';

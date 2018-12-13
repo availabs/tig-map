@@ -22,7 +22,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import styled from 'styled-components';
-import {Tooltip} from 'components/common/styledComponents';
+import {Tooltip} from 'components/common/styled-components';
 
 const HeaderActionWrapper = styled.div`
   margin-left: ${props => (props.flush ? 0 : 8)}px;
@@ -50,7 +50,7 @@ const HeaderActionWrapper = styled.div`
 // Need to use react class to access props.component
 export default class PanelHeaderAction extends Component {
   static propTypes = {
-    id: PropTypes.string,
+    // id: PropTypes.string,
     flush: PropTypes.bool,
     tooltip: PropTypes.string,
     onClick: PropTypes.func,
@@ -77,7 +77,8 @@ export default class PanelHeaderAction extends Component {
       hoverColor,
       tooltipType,
       disabled,
-      className
+      className,
+      theme
     } = this.props;
     return (
       <HeaderActionWrapper
@@ -85,6 +86,7 @@ export default class PanelHeaderAction extends Component {
         active={active}
         hoverColor={hoverColor}
         flush={flush}
+       
       >
         <this.props.IconComponent
           data-tip

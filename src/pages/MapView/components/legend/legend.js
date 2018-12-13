@@ -31,7 +31,7 @@ import { connect } from 'react-redux';
     console.log('theme', theme.textColor)
 
     return (
-      <div style={{width: '100%',  padding: 10, backgroundColor: theme.highlightColor}}>
+      <div style={{width: '100%',  padding: 10, backgroundColor: theme.sidePanelHeaderBg}}>
         <h5 style={{color: theme.textColor }}>{this.props.title}</h5>
         <div className='legend-container' style={legendContainerStyle}>
           {range.map( color => <div key={color} style={Object.assign(Object.assign({},colorBlock), {backgroundColor: color })} /> )}

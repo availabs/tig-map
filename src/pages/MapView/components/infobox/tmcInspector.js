@@ -10,12 +10,6 @@ import get from 'lodash.get'
 
  class TMCInspector extends Component {
   
-  // componentShouldUpdate(nState,nProps) {
-  //   if(nProps.tmc === this.props.tmc) {
-  //     return false
-  //   }
-  // }
-
   fetchFalcorDeps () {
     let year = +this.props.date.split('-')[0]
 

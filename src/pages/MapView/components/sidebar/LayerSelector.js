@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 
-import { activateLayer } from '../../store/MapStore'
+import { addLayer } from '../../store/MapStore'
 // import deepEqual from 'deep-equal'
 
  class LayerSelector extends Component {
@@ -21,7 +21,7 @@ import { activateLayer } from '../../store/MapStore'
 
   addLayer (e) {
     // console.log('add layer', e.target.getAttribute('value'))
-    this.props.activateLayer(e.target.getAttribute('value'))
+    this.props.addLayer(e.target.getAttribute('value'))
     this.closeDropdown()
   }
 
@@ -40,7 +40,7 @@ import { activateLayer } from '../../store/MapStore'
         <button 
           onClick={this.toggleDropdown}
           onFocusOut={this.closeDropdown}
-          style={{borderRadius: 0,  backgroundColor: theme.backgroundColor, color: theme.textColorHl}}
+          style={{borderRadius: 0,  backgroundColor: theme.sidePanelBg, color: theme.textColorHl}}
           className="btn btn-block dropdown-toggle" 
           type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true">
           Add Layer
@@ -72,7 +72,7 @@ import { activateLayer } from '../../store/MapStore'
 // }
 
 const mapDispatchToProps = {
-  activateLayer
+  addLayer
 }
 
 const mapStateToProps = state => {

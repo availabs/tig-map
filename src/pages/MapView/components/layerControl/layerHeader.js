@@ -12,13 +12,50 @@ import {
   Trash
 } from 'components/common/icons';
 
-import {InlineInput, StyledPanelHeader} from 'components/common/styledComponents';
+import {InlineInput, StyledPanelHeader} from 'components/common/styled-components';
 
+
+
+const propTypes = {
+  // required
+  id: PropTypes.string.isRequired,
+  isDragNDropEnabled: PropTypes.bool,
+  isVisible: PropTypes.bool.isRequired,
+  label: PropTypes.string.isRequired,
+  onToggleVisibility: PropTypes.func.isRequired,
+
+  // optional
+  className: PropTypes.string,
+  idx: PropTypes.number,
+  isConfigActive: PropTypes.bool,
+  labelRCGColorValues: PropTypes.array,
+  onUpdateLayerLabel: PropTypes.func,
+  onRemoveLayer: PropTypes.func
+};
+
+const defaultProps = {
+  isDragNDropEnabled: true,
+  showRemoveLayer: true,
+  className: '',
+  idx: 1,
+  isConfigActive: false ,
+  isVisible: true,
+  layerId: 1,
+  layerType: '',
+  labelRCGColorValues: [255, 0, 0],
+  isConfigActive: true,
+  onToggleVisibility: () => {},
+  onUpdateLayerLabel: () => {},
+  onToggleEnableConfig: () => {},
+  onRemoveLayer: () => {},
+  showRemoveLayer: () => {}
+};
 
 const StyledLayerPanelHeader = StyledPanelHeader.extend`
   .layer__remove-layer {
     opacity: 0;
   }
+  width: 100%;
   :hover {
     cursor: pointer;
     background-color: ${props => props.theme.panelBackgroundHover};
@@ -48,7 +85,6 @@ const HeaderActionSection = styled.div`
 
 const LayerTitleSection = styled.div`
   margin-left: 12px;
-
   .layer__title__type {
     color: ${props => props.theme.subtextColor};
     font-size: 10px;
@@ -97,7 +133,7 @@ const LayerPanelHeader = ({
   >
     <HeaderLabelSection className="layer-panel__header__content">
       {isDragNDropEnabled && (
-        <DragHandle className="layer__drag-handle">
+        <DragHandle theme={theme} className="layer__drag-handle">
           <VertDots height="20px" />
         </DragHandle>
       )}
@@ -108,12 +144,11 @@ const LayerPanelHeader = ({
         onClick={onToggleVisibility}
         IconComponent={isVisible ? EyeSeen : EyeUnseen}
         active={isVisible}
-        theme={theme}
         flush
       />
-      <LayerTitleSection className="layer__title">
+      <LayerTitleSection className="layer__title" theme={theme}>
         <div>
-          <LayerLabelEditor label={label} onEdit={onUpdateLayerLabel} />
+          <LayerLabelEditor label={label} onEdit={onUpdateLayerLabel} theme={theme}/>
           <div className="layer__title__type">{layerType}</div>
         </div>
       </LayerTitleSection>
@@ -127,7 +162,7 @@ const LayerPanelHeader = ({
           onClick={onRemoveLayer}
           tooltipType="error"
           IconComponent={Trash}
-          theme={theme}
+          
         />
       ) : null}
       <PanelHeaderAction
@@ -136,13 +171,13 @@ const LayerPanelHeader = ({
         tooltip={'Layer settings'}
         onClick={onToggleEnableConfig}
         IconComponent={ArrowDown}
-        theme={theme}
+        
       />
     </HeaderActionSection>
   </StyledLayerPanelHeader>
 );
 
-const LayerLabelEditor = ({label, onEdit}) => (
+const LayerLabelEditor = ({label, onEdit, theme}) => (
   <InlineInput
     type="text"
     className="layer__title__editor"
@@ -155,39 +190,8 @@ const LayerLabelEditor = ({label, onEdit}) => (
   />
 );
 
-LayerPanelHeader.propTypes ={
-  // required
-  id: PropTypes.string.isRequired,
-  isDragNDropEnabled: PropTypes.bool,
-  isVisible: PropTypes.bool.isRequired,
-  label: PropTypes.string.isRequired,
-  onToggleVisibility: PropTypes.func.isRequired,
-
-  // optional
-  className: PropTypes.string,
-  idx: PropTypes.number,
-  isConfigActive: PropTypes.bool,
-  labelRCGColorValues: PropTypes.array,
-  onUpdateLayerLabel: PropTypes.func,
-  onRemoveLayer: PropTypes.func
-};
-
-LayerPanelHeader.defaultProps = {
-  isDragNDropEnabled: true,
-  showRemoveLayer: true,
-  className: '',
-  idx: 1,
-  isConfigActive: false ,
-  isVisible: true,
-  layerId: 1,
-  layerType: '',
-  labelRCGColorValues: [255, 0, 0],
-  onToggleVisibility: () => {},
-  onUpdateLayerLabel: () => {},
-  onToggleEnableConfig: () => {},
-  onRemoveLayer: () => {},
-  showRemoveLayer: () => {}
-};
+LayerPanelHeader.propTypes = propTypes;
+LayerPanelHeader.defaultProps = defaultProps;
 
 
 const mapDispatchToProps = {
@@ -198,6 +202,7 @@ const mapStateToProps = (state,ownProps) => {
     theme: state.map.theme,
     layer: state.map.layers[ownProps.layerName],
     label: state.map.layers[ownProps.layerName].name.toUpperCase(),
+    layerType: state.map.layers[ownProps.layerName].type.toUpperCase(),
     update: state.map.update
   }
 };

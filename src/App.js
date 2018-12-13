@@ -6,6 +6,10 @@ import { login } from './store/modules/user';
 // comp
 import Layout from './layouts/Layout'
 import Routes from './routes'
+
+import { ThemeProvider }  from 'styled-components';
+import theme from 'components/common/themes/dark'
+
 import './App.css';
 
 import Messages from "./components/messages"
@@ -44,29 +48,31 @@ class App extends Component {
 
   render() {
     return (
-      <div className="all-wrapper solid-bg-all">
-        <Switch>
-        {
-        	Routes.map((route,i) => {
-            return (
-  	    			<Layout
-                key = {i}
-                { ...route }
-                isAuthenticating = {this.state.isAuthenticating}
-                authed = { this.props.isAuthenticated }
-                router = {this.props.router}
-                user = {this.props.user}
-                menuSettings = { route.menuSettings ?  route.menuSettings  : {} }
-                routes={route.routes}
-  	    				menus = { Routes } 
-                breadcrumbs = {route.breadcrumbs}
-  	    			/>
-  	    		)
-	    	  }) 
-        }
-        </Switch>
-        <Messages />
-      </div>
+      <ThemeProvider theme={theme}>
+        <div className="all-wrapper solid-bg-all">
+          <Switch>
+          {
+          	Routes.map((route,i) => {
+              return (
+    	    			<Layout
+                  key = {i}
+                  { ...route }
+                  isAuthenticating = {this.state.isAuthenticating}
+                  authed = { this.props.isAuthenticated }
+                  router = {this.props.router}
+                  user = {this.props.user}
+                  menuSettings = { route.menuSettings ?  route.menuSettings  : {} }
+                  routes={route.routes}
+    	    				menus = { Routes } 
+                  breadcrumbs = {route.breadcrumbs}
+    	    			/>
+    	    		)
+  	    	  }) 
+          }
+          </Switch>
+          <Messages />
+        </div>
+      </ThemeProvider>
     );
   }
 }

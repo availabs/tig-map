@@ -9,16 +9,16 @@ import { connect } from 'react-redux';
     const { theme } = this.props
     let sidebarHeaderStyle = {
       width: '100%',
-      flexBasis: 55,
+      flexBasis: 75,
       display: 'flex',
       padding: 15,
-      backgroundColor: theme.highlightColor// '#323c58', //'#29323C'
+      backgroundColor: theme.sidePanelHeaderBg// '#323c58', //'#29323C'
     }
 
 
     return (
       <div className='sidebar-header' style={sidebarHeaderStyle}>
-        <h5 style={{color: theme.textColor}}>MAP VIEW | TIG</h5>
+        <img style={{paddingLeft: 45, height: 45}} src='/img/nymtc_logo_white.svg' />
       </div>
     );
   }

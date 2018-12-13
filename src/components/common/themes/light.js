@@ -1,3 +1,5 @@
+import {css} from 'styled-components';
+
 export default {
 	backgroundColor: '#f2f4f8',
 	highlightColor: '#fafafa',
@@ -189,5 +191,5 @@ export default {
 	sliderHandleShadow:'0 2px 4px 0 rgba(0,0,0,0.40)',
 
 	// Plot
-	rangeBrushBgd:'#3A414C'
+	rangeBrushBgd:'#3A414C'	
 }

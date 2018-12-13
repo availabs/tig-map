@@ -32,7 +32,7 @@ import TMCInspector from './tmcInspector'
     }
 
     let sidebarInnerStyle = {
-      backgroundColor: theme.backgroundColor, //#242730
+      backgroundColor: theme.sidePanelBg, //#242730
       borderRadius: 1,
       display: 'flex',
       flexDirection: 'column',
