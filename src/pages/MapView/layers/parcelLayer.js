@@ -1,9 +1,9 @@
 import { HOST } from './layerHost'
 import { removeLayers, addPopUp, toggleVisibility } from './utils'
 
+import store from "store"
 import { falcorGraph } from "store/falcorGraph"
 import { update } from "utils/redux-falcor/components/duck"
-import store from "store"
 import { forceUpdate } from "../store/MapStore"
 
 const parcelLayer = {
@@ -36,13 +36,16 @@ const parcelLayer = {
             domain: [{ value: "choose", name: "Choose..."}],
             value: 'choose',
             onChange: (value, map) => {
-console.log("ON FILTER CHANGE")
+                if (value === 'choose') {
+                    map.setFilter('nys_1811_parcels', ["!in", "objectId", 'none'])
+                    return;
+                }
                 falcorGraph.get(["parcel", "byGeoid", value, "length"])
                     .then(res => {
                         return res.json.parcel.byGeoid[value].length;
                     })
                     .then(length => {
-                        return falcorGraph.get(["parcel", "byGeoid", value, "byIndex", length, "id"])
+                        return falcorGraph.get(["parcel", "byGeoid", value, "byIndex", { from: 0, to: length }, "id"])
                             .then(res => {
                                 const parcelids = [],
                                     graph = res.json.parcel.byGeoid[value].byIndex;
@@ -55,7 +58,7 @@ console.log("ON FILTER CHANGE")
                             })
                     })
                     .then(parcelids => {
-                        map.setFilter('nys_1811_parcels', ["in", "objectId", parcelids.join(",")])
+                        map.setFilter('nys_1811_parcels', ["in", "object_id", parcelids.join(",")])
                     })
                     .then(() => store.dispatch(update(falcorGraph.getCache())))
                     .then(() => store.dispatch(forceUpdate()))
