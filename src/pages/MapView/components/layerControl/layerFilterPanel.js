@@ -5,6 +5,7 @@ import {StyledPanelHeader} from 'components/common/styled-components';
 
 //import * as Filters from 'components/filters';
 import SingleSelectFilter from 'components/filters/single-select-filter'
+import MultiSelectFilter from 'components/filters/multi-select-filter'
 import { updateFilter } from '../../store/MapStore'
 // import deepEqual from 'deep-equal'
 
@@ -33,19 +34,26 @@ const StyledFilterContent = styled.div`
     const { layer, layerName, theme, filters } = this.props
    
 
-    const renderFilter = (row, i) => {
+    const renderFilter = (filterName, i) => {
+      const filter = filters[filterName];
+
       const dispatchUpdateFilter = (value) => {
-        this.props.updateFilter(layerName, row, value)  
+        this.props.updateFilter(layerName, filterName, value)  
       }
 
       return (
         <div>
-          
-        <SingleSelectFilter 
-          setFilter={dispatchUpdateFilter} 
-          filter={filters[row]} 
-          theme={this.props.theme} 
-        />
+          { filter.type === "dropdown" ?
+            <SingleSelectFilter 
+              setFilter={ dispatchUpdateFilter } 
+              filter={ filter }
+            />
+            :
+            <MultiSelectFilter 
+              setFilter={ dispatchUpdateFilter } 
+              filter={ filter }
+            />
+          }
         </div>
       )
     }

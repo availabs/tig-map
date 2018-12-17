@@ -32,33 +32,40 @@ const parcelLayer = {
 	filters: {
         area: {
             name: 'Area',
-            type: 'dropdown',
-            domain: [{ value: "choose", name: "Choose..."}],
-            value: 'choose',
+            type: 'multi',
+            domain: [],
+            value: [],
             onChange: (value, map) => {
-                if (value === 'choose') {
-                    map.setFilter('nys_1811_parcels', ["!in", "objectId", 'none'])
-                    return;
+console.log("ON CHANGE:", value)
+                if (value.length === 0) {
+                    return map.setFilter('nys_1811_parcels', ["!in", "objectId", 'none']);
                 }
                 falcorGraph.get(["parcel", "byGeoid", value, "length"])
                     .then(res => {
-                        return res.json.parcel.byGeoid[value].length;
+                        let max = -Infinity;
+                        value.forEach(geoid => {
+                            const length = res.json.parcel.byGeoid[geoid].length;
+                            max = Math.max(length, max);
+                        })
+                        return max;
                     })
                     .then(length => {
                         return falcorGraph.get(["parcel", "byGeoid", value, "byIndex", { from: 0, to: length }, "id"])
                             .then(res => {
-                                const parcelids = [],
-                                    graph = res.json.parcel.byGeoid[value].byIndex;
-                                for (let i = 0; i < length; ++i) {
-                                    if (graph[i]) {
-                                        parcelids.push(graph[i].id)
+                                const parcelids = [];
+                                value.forEach(geoid => {
+                                    const graph = res.json.parcel.byGeoid[geoid].byIndex;
+                                    for (let i = 0; i < length; ++i) {
+                                        if (graph[i]) {
+                                            parcelids.push(graph[i].id)
+                                        }
                                     }
-                                }
+                                })
                                 return parcelids;
                             })
                     })
                     .then(parcelids => {
-                        map.setFilter('nys_1811_parcels', ["in", "object_id", parcelids.join(",")])
+                        map.setFilter('nys_1811_parcels', ["in", "objectId", parcelids.join(",")])
                     })
                     .then(() => store.dispatch(update(falcorGraph.getCache())))
                     .then(() => store.dispatch(forceUpdate()))
@@ -66,7 +73,7 @@ const parcelLayer = {
         }
 	},
 	onAdd: (mapLayer, map, beneath) => {
-      beneath = beneath || 'waterway-label'
+        beneath = beneath || 'waterway-label'
       
         Object.keys(mapLayer.mapBoxSources).forEach(source => {
             map.addSource(source, mapLayer.mapBoxSources[source])
@@ -77,15 +84,15 @@ const parcelLayer = {
         })
       
         falcorGraph.get(["geo", "36", "counties"])
-            .then(res => {
-                const counties = res.json.geo['36'].counties;
+            .then(res => res.json.geo['36'].counties)
+            .then(counties => {
                 return falcorGraph.get(["geo", counties, "name"])
                     .then(res => {
                         const names = res.json.geo;
                         parcelLayer.filters.area.domain = counties.map(geoid => {
                             return { value: geoid, name: names[geoid].name }
                         })
-                        parcelLayer.filters.area.domain.unshift({ value: "choose", name: "Choose..." })
+                        // parcelLayer.filters.area.domain.unshift({ value: "none", name: "No County Filter" })
                     })
             })
             .then(() => store.dispatch(update(falcorGraph.getCache())))
