@@ -30,6 +30,9 @@ export const removeLayers = (mapLayer, map) => {
 	mapLayer.mapBoxLayers.forEach(layer => {
   		map.removeLayer(layer.id)
   	})
+  Object.keys(mapLayer.mapBoxSources).forEach(source => {
+    map.removeSource(source)
+  })
 }
 
 

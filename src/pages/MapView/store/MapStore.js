@@ -81,7 +81,7 @@ export const updateFilter = (layerName, filterName, value) => {
         value
       }), 
       Promise.resolve()
-    ).then(()=> {
+    )/*.then(()=> {
       if(getState().map.layers[layerName].onFilterFetch) {
         return getState().map.layers[layerName].onFilterFetch(getState().map.layers[layerName])
         .then(data => {
@@ -91,7 +91,7 @@ export const updateFilter = (layerName, filterName, value) => {
       } else {
         return Promise.resolve();
       }
-    })
+    })*/
   }
 }
 
@@ -113,6 +113,11 @@ export const fetchLayerData = (layerName) => {
     }
   }
 }
+
+export const forceUpdate = () =>
+  dispatch => dispatch({
+    type: "FORCE_UPDATE"
+  })
 
 // export const fetchLayerData = (layerName) => {
 //   return dispatch => {
@@ -151,6 +156,12 @@ let initialState = {
 // Action Handlers
 // ------------------------------------
 const ACTION_HANDLERS = {
+  "FORCE_UPDATE": (state=initialState, action) => {
+    return {
+      ...state,
+      update: ++state.update
+    } // hack to force update on deep props
+  },
   [ADD_LAYER]: (state = initialState, action) => {
     let newState = Object.assign({}, state);
     if(state.map){
@@ -209,7 +220,12 @@ const ACTION_HANDLERS = {
   },
   [UPDATE_LAYER_FILTER]: (state = initialState, action) => {
     let newState = Object.assign({}, state);
-    newState.layers[action.layerName].filters[action.filterName].value = action.value
+    const layer = newState.layers[action.layerName],
+      filter = layer.filters[action.filterName];
+    filter.value = action.value;
+    if (filter.onChange && newState.map) {
+      filter.onChange(action.value, newState.map);
+    }
     newState.update += 1; // hack to force update on deep props
     return newState
   }

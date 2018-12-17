@@ -1,7 +1,12 @@
 import { HOST } from './layerHost'
-import { addLayers, removeLayers, addPopUp, toggleVisibility } from './utils'
+import { removeLayers, addPopUp, toggleVisibility } from './utils'
 
-const npmrdsLayer = {
+import { falcorGraph } from "store/falcorGraph"
+import { update } from "utils/redux-falcor/components/duck"
+import store from "store"
+import { forceUpdate } from "../store/MapStore"
+
+const parcelLayer = {
 	name: 'Parcel Data',
     type: 'Parcels',
 	loading: false,
@@ -25,27 +30,68 @@ const npmrdsLayer = {
         }
     ],
 	filters: {
-        dataset: {
+        area: {
             name: 'Area',
             type: 'dropdown',
-            domain: [ 
-                {value:'36001', name:'Albany County'}
-            ],
-            value: '36001' 
+            domain: [{ value: "choose", name: "Choose..."}],
+            value: 'choose',
+            onChange: (value, map) => {
+console.log("ON FILTER CHANGE")
+                falcorGraph.get(["parcel", "byGeoid", value, "length"])
+                    .then(res => {
+                        return res.json.parcel.byGeoid[value].length;
+                    })
+                    .then(length => {
+                        return falcorGraph.get(["parcel", "byGeoid", value, "byIndex", length, "id"])
+                            .then(res => {
+                                const parcelids = [],
+                                    graph = res.json.parcel.byGeoid[value].byIndex;
+                                for (let i = 0; i < length; ++i) {
+                                    if (graph[i]) {
+                                        parcelids.push(graph[i].id)
+                                    }
+                                }
+                                return parcelids;
+                            })
+                    })
+                    .then(parcelids => {
+                        map.setFilter('nys_1811_parcels', ["in", "objectId", parcelids.join(",")])
+                    })
+                    .then(() => store.dispatch(update(falcorGraph.getCache())))
+                    .then(() => store.dispatch(forceUpdate()))
+            }
         }
 	},
-	onAdd: addLayers,
+	onAdd: (mapLayer, map, beneath) => {
+      beneath = beneath || 'waterway-label'
+      
+        Object.keys(mapLayer.mapBoxSources).forEach(source => {
+            map.addSource(source, mapLayer.mapBoxSources[source])
+        })
+
+        mapLayer.mapBoxLayers.forEach(layer => {
+            map.addLayer(layer, beneath);
+        })
+      
+        falcorGraph.get(["geo", "36", "counties"])
+            .then(res => {
+                const counties = res.json.geo['36'].counties;
+                return falcorGraph.get(["geo", counties, "name"])
+                    .then(res => {
+                        const names = res.json.geo;
+                        parcelLayer.filters.area.domain = counties.map(geoid => {
+                            return { value: geoid, name: names[geoid].name }
+                        })
+                        parcelLayer.filters.area.domain.unshift({ value: "choose", name: "Choose..." })
+                    })
+            })
+            .then(() => store.dispatch(update(falcorGraph.getCache())))
+            .then(() => store.dispatch(forceUpdate()))
+
+    },
 	onRemove: removeLayers,
     toggleVisibility: toggleVisibility,
 	active: false
 }
 
-function fetchData ( layer ) {
-	
-}
-
-function recieveData ( layer, map) {
-
-} 
-
-export default npmrdsLayer;
+export default parcelLayer;
