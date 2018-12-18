@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 
-import Legend from '../legend/legend'
+import Legend from '../legend/Legend'
 import TMCInspector from './tmcInspector'
 
  class Sidebar extends Component {
@@ -47,12 +47,17 @@ import TMCInspector from './tmcInspector'
       color: '#efefef'
     }
 
+    const activeLayers = Object.values(this.props.layers).filter(l => l.active),
+      activeLegends = activeLayers.reduce((a, c) => c.legends ? a.concat(c.legends) : a, []);
+
     return (
       <div className='sidebar-container' style={sideBarContainerStyle}>
         <div className='sidebar' style={sidebarStyle}>
           <div className='sidebar-inner' style={sidebarInnerStyle}>
             <div className='sidebar-content' style={sidebarContentStyle}>
-              <Legend />
+              {
+                activeLegends.map(l => <Legend theme={ this.props.theme } { ...l }/>)
+              }
               {this.tmcDisplay()}
             </div>
           </div>
@@ -70,7 +75,9 @@ const mapDispatchToProps = {}
 
 const mapStateToProps = state => {
   return {
-    theme: state.map.theme
+    theme: state.map.theme,
+    layers: state.map.layers,
+    update: state.map.update
   }
 };
 

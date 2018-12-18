@@ -35,13 +35,13 @@ class MapView extends Component {
     //   this.setState({data: nextProps.data})
     // }
 
-    if(map && !deepEqual(this.props.activeTMCS, nextProps.activeTMCS)){
-      setActiveTMCS(map,nextProps.activeTMCS,nextProps.tmcData, nextProps.epoch, nextProps.date, nextProps.domain, nextProps.range)
-    }
+    // if(map && !deepEqual(this.props.activeTMCS, nextProps.activeTMCS)){
+    //   setActiveTMCS(map,nextProps.activeTMCS,nextProps.tmcData, nextProps.epoch, nextProps.date, nextProps.domain, nextProps.range)
+    // }
 
-    if(this.props.activeTMCS.length > 0 && this.props.epoch != nextProps.epoch) {
-      setEpoch(map, this.props.activeTMCS, this.props.tmcData, nextProps.epoch, nextProps.date, nextProps.domain, nextProps.range)
-    }
+    // if(this.props.activeTMCS.length > 0 && this.props.epoch != nextProps.epoch) {
+    //   setEpoch(map, this.props.activeTMCS, this.props.tmcData, nextProps.epoch, nextProps.date, nextProps.domain, nextProps.range)
+    // }
   }
 
   componentDidMount() {
@@ -51,9 +51,9 @@ class MapView extends Component {
     map = new mapboxgl.Map({
       container: this.state.mapId,
       style: 'mapbox://styles/am3081/cjms1pdzt10gt2skn0c6n75te',
-      center: [-73.979531, 40.758700],
+      center: [-73.8014,42.6719],
       minZoom: 2,
-      zoom: 12
+      zoom: 13
     });
     map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
     map.on('load',  () => {
@@ -89,7 +89,8 @@ const mapDispatchToProps = {
 
 const mapStateToProps = state => {
   return {
-    layers:state.map.layer
+    layers:state.map.layers,
+    update: state.map.update
   };
 };
 
