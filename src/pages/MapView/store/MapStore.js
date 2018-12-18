@@ -20,6 +20,8 @@ const FETCH_LAYER_DATA_SUCESS = 'FETCH_LAYER_DATA_SUCESS'
 const FETCH_LAYER_DATA_ERROR = 'FETCH_LAYER_DATA_ERROR'
 const UPDATE_LAYER_FILTER = 'UPDATE_LAYER_FILTER' 
 
+const FORCE_UPDATE = "FORCE_UPDATE"
+
 // ------------------------------------
 // Actions
 // ------------------------------------
@@ -116,7 +118,7 @@ export const fetchLayerData = (layerName) => {
 
 export const forceUpdate = () =>
   dispatch => dispatch({
-    type: "FORCE_UPDATE"
+    type: FORCE_UPDATE
   })
 
 // export const fetchLayerData = (layerName) => {
@@ -156,7 +158,7 @@ let initialState = {
 // Action Handlers
 // ------------------------------------
 const ACTION_HANDLERS = {
-  "FORCE_UPDATE": (state=initialState, action) => {
+  [FORCE_UPDATE]: (state=initialState, action) => {
     return {
       ...state,
       update: ++state.update

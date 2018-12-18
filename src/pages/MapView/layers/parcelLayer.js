@@ -36,9 +36,8 @@ const parcelLayer = {
             domain: [],
             value: [],
             onChange: (value, map) => {
-console.log("ON CHANGE:", value)
                 if (value.length === 0) {
-                    return map.setFilter('nys_1811_parcels', ["!in", "objectId", 'none']);
+                    return map.setFilter('nys_1811_parcels', ["!in", "objectID", 'none']);
                 }
                 falcorGraph.get(["parcel", "byGeoid", value, "length"])
                     .then(res => {
@@ -65,8 +64,7 @@ console.log("ON CHANGE:", value)
                             })
                     })
                     .then(parcelids => {
-console.log("PARCEL IDS:",parcelids)
-                        map.setFilter('nys_1811_parcels', ["in", "objectId", parcelids.join(",")])
+                        map.setFilter('nys_1811_parcels', ["in", "objectID", parcelids.join(",")])
                     })
                     .then(() => store.dispatch(update(falcorGraph.getCache())))
                     .then(() => store.dispatch(forceUpdate()))
