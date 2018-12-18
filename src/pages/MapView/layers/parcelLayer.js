@@ -65,8 +65,8 @@ console.log("ON CHANGE:", value)
                             })
                     })
                     .then(parcelids => {
-console.log("PARCEL IDS:",parcelids)
-                        map.setFilter('nys_1811_parcels', ["in", "objectId", parcelids.join(",")])
+                        console.log(...parcelids.map(d => +d))
+                        map.setFilter('nys_1811_parcels', ["in", "OBJECTID", ...parcelids.map(d => +d)])
                     })
                     .then(() => store.dispatch(update(falcorGraph.getCache())))
                     .then(() => store.dispatch(forceUpdate()))
@@ -75,7 +75,7 @@ console.log("PARCEL IDS:",parcelids)
 	},
 	onAdd: (mapLayer, map, beneath) => {
         beneath = beneath || 'waterway-label'
-      
+        console.log('parcel layer on add')
         Object.keys(mapLayer.mapBoxSources).forEach(source => {
             map.addSource(source, mapLayer.mapBoxSources[source])
         })
@@ -83,12 +83,23 @@ console.log("PARCEL IDS:",parcelids)
         mapLayer.mapBoxLayers.forEach(layer => {
             map.addLayer(layer, beneath);
         })
+        let popUpOptopns = {
+            rows: ['OBJECTID']
+        }
+
+        //addPopUp(map, 'nys_1811_parcels', popUpOptopns)
       
+        map.on('mouseenter', 'nys_1811_parcels', function(e) {
+        
+            console.log('hover:',e.features[0].properties.OBJECTID)
+        })
+
         falcorGraph.get(["geo", "36", "counties"])
             .then(res => res.json.geo['36'].counties)
             .then(counties => {
                 return falcorGraph.get(["geo", counties, "name"])
                     .then(res => {
+                        console.log('got data', counties)
                         const names = res.json.geo;
                         parcelLayer.filters.area.domain = counties.map(geoid => {
                             return { value: geoid, name: names[geoid].name }

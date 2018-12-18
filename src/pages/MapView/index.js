@@ -51,9 +51,9 @@ class MapView extends Component {
     map = new mapboxgl.Map({
       container: this.state.mapId,
       style: 'mapbox://styles/am3081/cjms1pdzt10gt2skn0c6n75te',
-      center: [-73.979531, 40.758700],
+      center: [-73.8014,42.6719],
       minZoom: 2,
-      zoom: 12
+      zoom: 13
     });
     map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
     map.on('load',  () => {
