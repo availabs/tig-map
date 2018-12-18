@@ -225,9 +225,6 @@ const ACTION_HANDLERS = {
     const layer = newState.layers[action.layerName],
       filter = layer.filters[action.filterName];
     filter.value = action.value;
-    if (filter.onChange && newState.map) {
-      filter.onChange(action.value, newState.map);
-    }
     newState.update += 1; // hack to force update on deep props
     return newState
   }

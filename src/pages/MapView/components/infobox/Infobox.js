@@ -48,7 +48,7 @@ import TMCInspector from './tmcInspector'
     }
 
     const activeLayers = Object.values(this.props.layers).filter(l => l.active),
-      activeLegends = activeLayers.reduce((a, c) => c.legends ? a.concat(c.legends) : a, []);
+      activeLegends = activeLayers.reduce((a, c) => c.legends  ? a.concat(c.legends.filter(l => l.domain.length)) : a, []);
 
     return (
       <div className='sidebar-container' style={sideBarContainerStyle}>

@@ -55,9 +55,9 @@ const parcelLayer = {
     legends: [
         {
             type: "quantile",
-            domain: [0, 1],
+            domain: [],
             range: MEASURE_RANGE,
-            title: "Test Quantile",
+            title: "Measure Legend",
             format: fnum
         }
     ],
@@ -96,6 +96,8 @@ const parcelLayer = {
         if (!parcelids.length) {
             map.setFilter('nys_1811_parcels', ["!in", "OBJECTID", "none"])
             map.setPaintProperty('nys_1811_parcels', 'fill-color', 'rgba(0,0,196,0.1)');
+            parcelLayer.legends[0].domain = [];
+            store.dispatch(forceUpdate());
             return;
         }
         map.setFilter('nys_1811_parcels', ["in", "OBJECTID", ...parcelids.map(d => +d)])
