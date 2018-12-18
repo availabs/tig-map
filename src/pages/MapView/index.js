@@ -35,13 +35,13 @@ class MapView extends Component {
     //   this.setState({data: nextProps.data})
     // }
 
-    if(map && !deepEqual(this.props.activeTMCS, nextProps.activeTMCS)){
-      setActiveTMCS(map,nextProps.activeTMCS,nextProps.tmcData, nextProps.epoch, nextProps.date, nextProps.domain, nextProps.range)
-    }
+    // if(map && !deepEqual(this.props.activeTMCS, nextProps.activeTMCS)){
+    //   setActiveTMCS(map,nextProps.activeTMCS,nextProps.tmcData, nextProps.epoch, nextProps.date, nextProps.domain, nextProps.range)
+    // }
 
-    if(this.props.activeTMCS.length > 0 && this.props.epoch != nextProps.epoch) {
-      setEpoch(map, this.props.activeTMCS, this.props.tmcData, nextProps.epoch, nextProps.date, nextProps.domain, nextProps.range)
-    }
+    // if(this.props.activeTMCS.length > 0 && this.props.epoch != nextProps.epoch) {
+    //   setEpoch(map, this.props.activeTMCS, this.props.tmcData, nextProps.epoch, nextProps.date, nextProps.domain, nextProps.range)
+    // }
   }
 
   componentDidMount() {
@@ -89,7 +89,8 @@ const mapDispatchToProps = {
 
 const mapStateToProps = state => {
   return {
-    layers:state.map.layer
+    layers:state.map.layers,
+    update: state.map.update
   };
 };
 

@@ -36,9 +36,8 @@ const parcelLayer = {
             domain: [],
             value: [],
             onChange: (value, map) => {
-console.log("ON CHANGE:", value)
                 if (value.length === 0) {
-                    return map.setFilter('nys_1811_parcels', ["!in", "objectId", 'none']);
+                    return map.setFilter('nys_1811_parcels', ["!in", "objectID", 'none']);
                 }
                 falcorGraph.get(["parcel", "byGeoid", value, "length"])
                     .then(res => {
@@ -72,6 +71,26 @@ console.log("ON CHANGE:", value)
             }
         }
 	},
+    legends: [
+        {
+            type: "ordinal",
+            domain: [1, 3, 5],
+            range: ["red", "yellow", "green"],
+            title: "Test Ordinal"
+        },
+        {
+            type: "linear",
+            domain: [1, 3, 5],
+            range: ["red", "yellow", "green"],
+            title: "Test Linear"
+        },
+        {
+            type: "quantile",
+            domain: [1, 2, 3, 4, 5],
+            range: ["red", "yellow", "green"],
+            title: "Test Quantile"
+        }
+    ],
 	onAdd: (mapLayer, map, beneath) => {
         beneath = beneath || 'waterway-label'
         console.log('parcel layer on add')
@@ -88,10 +107,9 @@ console.log("ON CHANGE:", value)
 
         //addPopUp(map, 'nys_1811_parcels', popUpOptopns)
       
-        map.on('mouseenter', 'nys_1811_parcels', function(e) {
-        
-            console.log('hover:',e.features[0].properties.OBJECTID)
-        })
+        // map.on('mouseenter', 'nys_1811_parcels', function(e) {
+        //     console.log('hover:',e.features[0].properties.OBJECTID)
+        // })
 
         falcorGraph.get(["geo", "36", "counties"])
             .then(res => res.json.geo['36'].counties)
