@@ -83,7 +83,7 @@ export const updateFilter = (layerName, filterName, value) => {
         value
       }), 
       Promise.resolve()
-    )/*.then(()=> {
+    ).then(()=> {
       if(getState().map.layers[layerName].onFilterFetch) {
         return getState().map.layers[layerName].onFilterFetch(getState().map.layers[layerName])
         .then(data => {
@@ -93,7 +93,7 @@ export const updateFilter = (layerName, filterName, value) => {
       } else {
         return Promise.resolve();
       }
-    })*/
+    })
   }
 }
 
