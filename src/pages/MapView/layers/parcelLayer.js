@@ -74,7 +74,7 @@ const parcelLayer = {
     legends: [
         {
             type: "ordinal",
-            domain: [1, 2, 3],
+            domain: [1, 3, 5],
             range: ["red", "yellow", "green"],
             title: "Test Ordinal"
         },
