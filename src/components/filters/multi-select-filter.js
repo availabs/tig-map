@@ -30,7 +30,7 @@ const MultiSelectFilter = ({filter, setFilter}) => (
       placeholder="Select a Value"
       options={filter.domain}
       multiSelect={true}
-      searchable={ false }
+      searchable={ true }
       displayOption={d => d.name ? d.name : String(d)}
       getOptionValue={d => d.value ? d.value : d}
       onChange={setFilter}
