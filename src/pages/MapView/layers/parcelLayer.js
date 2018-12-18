@@ -65,7 +65,6 @@ console.log("ON CHANGE:", value)
                             })
                     })
                     .then(parcelids => {
-                        console.log(...parcelids.map(d => +d))
                         map.setFilter('nys_1811_parcels', ["in", "OBJECTID", ...parcelids.map(d => +d)])
                     })
                     .then(() => store.dispatch(update(falcorGraph.getCache())))
