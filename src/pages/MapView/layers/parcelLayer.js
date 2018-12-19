@@ -119,6 +119,7 @@ const parcelLayer = {
                 })
                 scale.domain(domain);
                 parcelLayer.legends[0].domain = domain;
+                store.dispatch(forceUpdate());
                 for (const pid in values) {
                     colors[pid] = scale(values[pid])
                 }
