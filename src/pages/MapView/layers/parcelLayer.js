@@ -42,13 +42,12 @@ const parcelLayer = {
             name: 'Area',
             type: 'multi',
             domain: [],
-            value: [],
-            onChange: (value, map) => {}
+            value: []
         },
         measure: {
             name: "Measure",
             type: "dropdown",
-            domain: [],
+            domain: [{ value: "full_marke", name: "Full Market Value" }],
             value: "full_marke"
         }
 	},
@@ -91,14 +90,12 @@ const parcelLayer = {
                         return parcelids;
                     })
             })
-
     },
     receiveData: (parcelids, map) => {
         if (!parcelids.length) {
             map.setFilter('nys_1811_parcels', ["!in", "OBJECTID", "none"])
             map.setPaintProperty('nys_1811_parcels', 'fill-color', 'rgba(0,0,196,0.1)');
             parcelLayer.legends[0].domain = [];
-            store.dispatch(forceUpdate());
             return;
         }
         map.setFilter('nys_1811_parcels', ["in", "OBJECTID", ...parcelids.map(d => +d)])

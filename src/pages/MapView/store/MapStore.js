@@ -218,6 +218,7 @@ const ACTION_HANDLERS = {
     if(state.map) {
       newState.layers[action.layerName].receiveData(action.data, state.map, state.activeRange, state.activeDomain)
     }
+    ++newState.update; // hack to force update on deep props
     return newState;
   },
   [UPDATE_LAYER_FILTER]: (state = initialState, action) => {
