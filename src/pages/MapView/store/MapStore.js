@@ -83,7 +83,7 @@ export const updateFilter = (layerName, filterName, value) => {
         value
       }), 
       Promise.resolve()
-    )/*.then(()=> {
+    ).then(()=> {
       if(getState().map.layers[layerName].onFilterFetch) {
         return getState().map.layers[layerName].onFilterFetch(getState().map.layers[layerName])
         .then(data => {
@@ -93,7 +93,7 @@ export const updateFilter = (layerName, filterName, value) => {
       } else {
         return Promise.resolve();
       }
-    })*/
+    })
   }
 }
 
@@ -225,9 +225,6 @@ const ACTION_HANDLERS = {
     const layer = newState.layers[action.layerName],
       filter = layer.filters[action.filterName];
     filter.value = action.value;
-    if (filter.onChange && newState.map) {
-      filter.onChange(action.value, newState.map);
-    }
     newState.update += 1; // hack to force update on deep props
     return newState
   }

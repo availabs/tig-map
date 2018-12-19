@@ -65,7 +65,7 @@ import * as d3scale from "d3-scale"
             : this.props.type === "linear" ?
               scale.ticks(5).map(t => <div key={ t } style={ textBlock }>{ t }</div>)
             :
-              range.map(r => <div key={ r } style={ textBlock }>{ scale.invertExtent(r)[1].toFixed(1) }</div>)
+              range.map(r => <div key={ r } style={ textBlock }>{ this.props.format(scale.invertExtent(r)[1]) }</div>)
           }
           <div style={ textBlock }></div>
         </div>
@@ -78,7 +78,8 @@ Legend.defaultProps = {
   title: 'Legend',
   range: [],
   domain: [],
-  type: "linear"
+  type: "linear",
+  format: d => d
 }
 
 export default Legend

@@ -6,6 +6,14 @@ import { falcorGraph } from "store/falcorGraph"
 import { update } from "utils/redux-falcor/components/duck"
 import { forceUpdate } from "../store/MapStore"
 
+import { updateFilter } from "../store/MapStore"
+
+import { scaleQuantile } from "d3-scale"
+
+import { fnum } from "utils/sheldusUtils"
+
+const MEASURE_RANGE = ['#b11021','#dc6147','#f4ae8c','#9bd0ea','#479acf','#2266b2']
+
 const parcelLayer = {
 	name: 'Parcel Data',
     type: 'Parcels',
@@ -35,62 +43,92 @@ const parcelLayer = {
             type: 'multi',
             domain: [],
             value: [],
-            onChange: (value, map) => {
-                if (value.length === 0) {
-                    return map.setFilter('nys_1811_parcels', ["!in", "objectID", 'none']);
-                }
-                falcorGraph.get(["parcel", "byGeoid", value, "length"])
-                    .then(res => {
-                        let max = -Infinity;
-                        value.forEach(geoid => {
-                            const length = res.json.parcel.byGeoid[geoid].length;
-                            max = Math.max(length, max);
-                        })
-                        return max;
-                    })
-                    .then(length => {
-                        return falcorGraph.get(["parcel", "byGeoid", value, "byIndex", { from: 0, to: length }, "id"])
-                            .then(res => {
-                                const parcelids = [];
-                                value.forEach(geoid => {
-                                    const graph = res.json.parcel.byGeoid[geoid].byIndex;
-                                    for (let i = 0; i < length; ++i) {
-                                        if (graph[i]) {
-                                            parcelids.push(graph[i].id)
-                                        }
-                                    }
-                                })
-                                return parcelids;
-                            })
-                    })
-                    .then(parcelids => {
-                        map.setFilter('nys_1811_parcels', ["in", "OBJECTID", ...parcelids.map(d => +d)])
-                    })
-                    .then(() => store.dispatch(update(falcorGraph.getCache())))
-                    .then(() => store.dispatch(forceUpdate()))
-            }
+            onChange: (value, map) => {}
+        },
+        measure: {
+            name: "Measure",
+            type: "dropdown",
+            domain: [],
+            value: "full_marke"
         }
 	},
     legends: [
         {
-            type: "ordinal",
-            domain: [1, 3, 5],
-            range: ["red", "yellow", "green"],
-            title: "Test Ordinal"
-        },
-        {
-            type: "linear",
-            domain: [1, 3, 5],
-            range: ["red", "yellow", "green"],
-            title: "Test Linear"
-        },
-        {
             type: "quantile",
-            domain: [1, 2, 3, 4, 5],
-            range: ["red", "yellow", "green"],
-            title: "Test Quantile"
+            domain: [],
+            range: MEASURE_RANGE,
+            title: "Measure Legend",
+            format: fnum
         }
     ],
+    onFilterFetch: layer => {
+        const geoids = layer.filters.area.value;
+        if (!geoids.length) {
+            return Promise.resolve([]);
+        }
+        return falcorGraph.get(["parcel", "byGeoid", geoids, "length"])
+            .then(res => {
+                let max = -Infinity;
+                geoids.forEach(geoid => {
+                    const length = res.json.parcel.byGeoid[geoid].length;
+                    max = Math.max(length, max);
+                })
+                return max;
+            })
+            .then(length => {
+                return falcorGraph.get(["parcel", "byGeoid", geoids, "byIndex", { from: 0, to: length }, "id"])
+                    .then(res => {
+                        const parcelids = [];
+                        geoids.forEach(geoid => {
+                            const graph = res.json.parcel.byGeoid[geoid].byIndex;
+                            for (let i = 0; i < length; ++i) {
+                                if (graph[i]) {
+                                    parcelids.push(graph[i].id)
+                                }
+                            }
+                        })
+                        return parcelids;
+                    })
+            })
+
+    },
+    receiveData: (parcelids, map) => {
+        if (!parcelids.length) {
+            map.setFilter('nys_1811_parcels', ["!in", "OBJECTID", "none"])
+            map.setPaintProperty('nys_1811_parcels', 'fill-color', 'rgba(0,0,196,0.1)');
+            parcelLayer.legends[0].domain = [];
+            store.dispatch(forceUpdate());
+            return;
+        }
+        map.setFilter('nys_1811_parcels', ["in", "OBJECTID", ...parcelids.map(d => +d)])
+        const measure = parcelLayer.filters.measure.value,
+            requests = [],
+            num = 500;
+        for (let i = 0; i < parcelids.length; i += num) {
+            requests.push(parcelids.slice(i, i + num))
+        }
+        requests.reduce((a, c) => a.then(() => falcorGraph.get(["parcel", "byId", c, measure])), Promise.resolve())
+            .then(() => {
+                const graph = falcorGraph.getCache().parcel.byId,
+                    values = {},
+                    colors = {},
+                    scale = scaleQuantile()
+                        .range(MEASURE_RANGE),
+                    domain = [];
+                parcelids.forEach(pid => {
+                    const value = graph[pid][measure];
+                    values[pid] = value;
+                    domain.push(value);
+                })
+                scale.domain(domain);
+                parcelLayer.legends[0].domain = domain;
+                store.dispatch(forceUpdate());
+                for (const pid in values) {
+                    colors[pid] = scale(values[pid])
+                }
+                map.setPaintProperty('nys_1811_parcels', 'fill-color', ["get", ["to-string", ["get", "OBJECTID"]], ["literal", colors]]);
+            })
+    },
 	onAdd: (mapLayer, map, beneath) => {
         beneath = beneath || 'waterway-label'
         console.log('parcel layer on add')
@@ -116,7 +154,6 @@ const parcelLayer = {
             .then(counties => {
                 return falcorGraph.get(["geo", counties, "name"])
                     .then(res => {
-                        console.log('got data', counties)
                         const names = res.json.geo;
                         parcelLayer.filters.area.domain = counties.map(geoid => {
                             return { value: geoid, name: names[geoid].name }
@@ -126,6 +163,13 @@ const parcelLayer = {
             })
             .then(() => store.dispatch(update(falcorGraph.getCache())))
             .then(() => store.dispatch(forceUpdate()))
+
+        falcorGraph.get(["parcel", "byGeoid", '36001', "length"])
+            .then(res => {
+                return res.json.parcel.byGeoid['36001'].length;
+            })
+            .then(length => falcorGraph.get(["parcel", "byGeoid", "36001", "byIndex", { from: 0, to: length }, "id"]))
+            .then(() => store.dispatch(updateFilter('parcelLayer', 'area', ['36001'])))
 
     },
 	onRemove: removeLayers,
