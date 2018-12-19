@@ -18,6 +18,8 @@ import * as d3scale from "d3-scale"
         return d3scale.scaleOrdinal();
       case "quantile":
         return d3scale.scaleQuantile();
+      case "quantize":
+        return d3scale.scaleQuantize();
     }
   }
   
