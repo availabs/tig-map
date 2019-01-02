@@ -63,9 +63,9 @@ import * as d3scale from "d3-scale"
         <div style={{width:'100%', position: 'relative', right: -3}}>
           { 
             this.props.type === "ordinal" ?
-              domain.map(d => <div key={ d } style={ textBlock } >{ d }</div>)
+              domain.map(d => <div key={ d } style={ textBlock } >{ this.props.format(d) }</div>)
             : this.props.type === "linear" ?
-              scale.ticks(5).map(t => <div key={ t } style={ textBlock }>{ t }</div>)
+              scale.ticks(5).map(t => <div key={ t } style={ textBlock }>{ this.props.format(t) }</div>)
             :
               range.map(r => <div key={ r } style={ textBlock }>{ this.props.format(scale.invertExtent(r)[1]) }</div>)
           }
