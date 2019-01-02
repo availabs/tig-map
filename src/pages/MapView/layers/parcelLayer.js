@@ -72,6 +72,7 @@ const parcelLayer = {
                     const length = res.json.parcel.byGeoid[geoid].length;
                     max = Math.max(length, max);
                 })
+                console.log('length', max)
                 return max;
             })
             .then(length => {
@@ -161,12 +162,12 @@ const parcelLayer = {
             .then(() => store.dispatch(update(falcorGraph.getCache())))
             .then(() => store.dispatch(forceUpdate()))
 
-        falcorGraph.get(["parcel", "byGeoid", '36001', "length"])
+        falcorGraph.get(["parcel", "byGeoid", '3600101000', "length"])
             .then(res => {
-                return res.json.parcel.byGeoid['36001'].length;
+                return res.json.parcel.byGeoid['3600101000'].length;
             })
             .then(length => falcorGraph.get(["parcel", "byGeoid", "36001", "byIndex", { from: 0, to: length }, "id"]))
-            .then(() => store.dispatch(updateFilter('parcelLayer', 'area', ['36001'])))
+            .then(() => store.dispatch(updateFilter('parcelLayer', 'area', ['3600101000'])))
 
     },
 	onRemove: removeLayers,
