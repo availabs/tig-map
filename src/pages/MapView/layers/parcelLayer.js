@@ -1,23 +1,28 @@
 import { HOST } from './layerHost'
-import { removeLayers, addPopUp, toggleVisibility } from './utils'
+import { removeLayers, toggleVisibility } from './utils'
 
 import store from "store"
 import { falcorGraph } from "store/falcorGraph"
 import { update } from "utils/redux-falcor/components/duck"
-import { forceUpdate } from "../store/MapStore"
+import {
+    forceUpdate,
+    updateFilter,
+    updateTooltip
+} from "../store/MapStore"
 
-import { updateFilter } from "../store/MapStore"
+import {  } from "../store/MapStore"
 
 import { scaleQuantile } from "d3-scale"
 
 import { fnum } from "utils/sheldusUtils"
 
+const MEASURES = [{ value: "full_marke", name: "Full Market Value" }]
 const MEASURE_RANGE = ['#b11021','#dc6147','#f4ae8c','#9bd0ea','#479acf','#2266b2']
 
 const parcelLayer = {
 	name: 'Parcel Data',
     type: 'Parcels',
-	loading: false,
+	loading: true,
     visible: true,
 	mapBoxSources: {
         nys_parcels: {
@@ -47,21 +52,21 @@ const parcelLayer = {
         measure: {
             name: "Measure",
             type: "dropdown",
-            domain: [{ value: "full_marke", name: "Full Market Value" }],
+            domain: MEASURES,
             value: "full_marke"
         }
 	},
-    legends: [
-        {
-            type: "quantile",
-            domain: [],
-            range: MEASURE_RANGE,
-            title: "Measure Legend",
-            format: fnum
-        }
-    ],
+    legend: {
+        type: "quantile",
+        types: ["quantile"],
+        onChange: onLegendTypeChange,
+        domain: [],
+        range: MEASURE_RANGE,
+        title: "Parcel Legend",
+        format: d => `$${ fnum(d) }`
+    },
     onFilterFetch: layer => {
-        const geoids = layer.filters.area.value;
+        const geoids = parcelLayer.filters.area.value;
         if (!geoids.length) {
             return Promise.resolve([]);
         }
@@ -90,8 +95,20 @@ const parcelLayer = {
                         return parcelids;
                     })
             })
+            .then(parcelids => {
+                const requests = [],
+                    num = 500;
+                for (let i = 0; i < parcelids.length; i += num) {
+                    requests.push(parcelids.slice(i, i + num))
+                }
+                return requests.reduce((a, c) => a.then(() => falcorGraph.get(["parcel", "byId", c, MEASURES.map(m => m.value)])), Promise.resolve())
+                    .then(() => {
+                        const colors = processFalcorGraph(parcelids);
+                        return { colors, parcelids };
+                    })
+            })
     },
-    receiveData: (parcelids, map) => {
+    receiveData: ({ colors, parcelids }, map) => {
         if (!parcelids.length) {
             map.setFilter('nys_1811_parcels', ["!in", "OBJECTID", "none"])
             map.setPaintProperty('nys_1811_parcels', 'fill-color', 'rgba(0,0,196,0.1)');
@@ -99,33 +116,7 @@ const parcelLayer = {
             return;
         }
         map.setFilter('nys_1811_parcels', ["in", "OBJECTID", ...parcelids.map(d => +d)])
-        const measure = parcelLayer.filters.measure.value,
-            requests = [],
-            num = 500;
-        for (let i = 0; i < parcelids.length; i += num) {
-            requests.push(parcelids.slice(i, i + num))
-        }
-        requests.reduce((a, c) => a.then(() => falcorGraph.get(["parcel", "byId", c, measure])), Promise.resolve())
-            .then(() => {
-                const graph = falcorGraph.getCache().parcel.byId,
-                    values = {},
-                    colors = {},
-                    scale = scaleQuantile()
-                        .range(MEASURE_RANGE),
-                    domain = [];
-                parcelids.forEach(pid => {
-                    const value = graph[pid][measure];
-                    values[pid] = value;
-                    domain.push(value);
-                })
-                scale.domain(domain);
-                parcelLayer.legends[0].domain = domain;
-                store.dispatch(forceUpdate());
-                for (const pid in values) {
-                    colors[pid] = scale(values[pid])
-                }
-                map.setPaintProperty('nys_1811_parcels', 'fill-color', ["get", ["to-string", ["get", "OBJECTID"]], ["literal", colors]]);
-            })
+        map.setPaintProperty('nys_1811_parcels', 'fill-color', ["get", ["to-string", ["get", "OBJECTID"]], ["literal", colors]]);
     },
 	onAdd: (mapLayer, map, beneath) => {
         beneath = beneath || 'waterway-label'
@@ -141,11 +132,20 @@ const parcelLayer = {
             rows: ['OBJECTID']
         }
 
-        //addPopUp(map, 'nys_1811_parcels', popUpOptopns)
-      
-        // map.on('mouseenter', 'nys_1811_parcels', function(e) {
-        //     console.log('hover:',e.features[0].properties.OBJECTID)
-        // })
+        addPopUp(map, 'nys_1811_parcels', feature => {
+            const id = feature.properties.OBJECTID;
+            try {
+                const graph = falcorGraph.getCache().parcel.byId,
+                    measure = parcelLayer.filters.measure.value;
+                return [
+                    "Parcel",
+                    [measure, `$${ fnum(graph[id][measure]) }`]
+                ]
+            }
+            catch (e) {
+                return []
+            }
+        })
 
         falcorGraph.get(["geo", "36", "counties"])
             .then(res => res.json.geo['36'].counties)
@@ -156,7 +156,6 @@ const parcelLayer = {
                         parcelLayer.filters.area.domain = counties.map(geoid => {
                             return { value: geoid, name: names[geoid].name }
                         })
-                        // parcelLayer.filters.area.domain.unshift({ value: "none", name: "No County Filter" })
                     })
             })
             .then(() => store.dispatch(update(falcorGraph.getCache())))
@@ -173,6 +172,85 @@ const parcelLayer = {
 	onRemove: removeLayers,
     toggleVisibility: toggleVisibility,
 	active: false
+}
+
+const processFalcorGraph = parcelids => {
+    const measure = parcelLayer.filters.measure.value,
+        graph = falcorGraph.getCache().parcel.byId,
+
+        values = {},
+        colors = {},
+
+        scale = scaleQuantile()
+            .range(MEASURE_RANGE),
+        domain = [];
+    parcelids.forEach(pid => {
+        const value = graph[pid][measure];
+        values[pid] = value;
+        domain.push(value);
+    })
+    scale.domain(domain);
+    parcelLayer.legend.domain = domain;
+    for (const pid in values) {
+        colors[pid] = scale(values[pid])
+    }
+    return colors
+}
+const onLegendTypeChange = () => {
+
+}
+
+const addPopUp = (map, layer, dataFunc) => {
+
+    map.on("mousemove", layer, e => {
+        map.getCanvas().style.cursor = 'pointer';
+
+        const { pinned } = store.getState().map.tooltip;
+        if (pinned) return;
+
+        if ((typeof dataFunc === "function") && e.features.length) {
+            store.dispatch(updateTooltip({
+                pos: [e.point.x, e.point.y],
+                data: dataFunc(e.features[0])
+            }))
+        }
+    })
+
+    map.on('mouseleave', layer, function() {
+        map.getCanvas().style.cursor = '';
+
+        const { pinned } = store.getState().map.tooltip;
+        if (pinned) return;
+
+        store.dispatch(updateTooltip({
+            data: []
+        }))
+    });
+
+    map.on('click', layer, e => {
+        const { pinned } = store.getState().map.tooltip;
+        if ((typeof dataFunc === "function") && e.features.length) {
+            const data = dataFunc(e.features[0]);
+            if (data.length) {
+                if (pinned) {
+                    store.dispatch(updateTooltip({
+                        pos: [e.point.x, e.point.y],
+                        data
+                    }))
+                }
+                else {
+                    store.dispatch(updateTooltip({
+                        pinned: true
+                    }))
+                }
+            }
+            else {
+                store.dispatch(updateTooltip({
+                    pinned: false
+                }))
+            }
+        }
+    })
 }
 
 export default parcelLayer;

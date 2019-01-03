@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
 import Sidebar from './components/sidebar'
 import Infobox from './components/infobox/Infobox'
 import SliderContainer from './components/slider/slider-container'
+import MapPopover from "./components/popover/MapPopover"
 
 import './incidents.css'
 
@@ -77,7 +78,7 @@ class MapView extends Component {
       <div id={this.state.mapId} style={{width: '100%', height: '100vh'}}>
         <Sidebar />
         <Infobox />
-        
+        <MapPopover />
       </div>
     );
   }

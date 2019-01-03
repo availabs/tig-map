@@ -21,6 +21,7 @@ const FETCH_LAYER_DATA_ERROR = 'FETCH_LAYER_DATA_ERROR'
 const UPDATE_LAYER_FILTER = 'UPDATE_LAYER_FILTER' 
 
 const FORCE_UPDATE = "FORCE_UPDATE"
+const UPDATE_TOOLTIP = "UPDATE_TOOLTIP"
 
 // ------------------------------------
 // Actions
@@ -138,32 +139,47 @@ export const forceUpdate = () =>
 //   };
 // };
 
+export const updateTooltip = update =>
+  dispatch => dispatch({
+    type: UPDATE_TOOLTIP,
+    update
+  })
 
 
 // -------------------------------------
 // Initial State
 // -------------------------------------
 
-let initialState = {
+const initialState = {
   layers,
   map: null,
   activeRange: ['#b11021','#dc6147','#f4ae8c','#9bd0ea','#479acf','#2266b2'],
   activeDomain: [10,20,30,40,55],
   loadingTMC: false,
   theme: LightTheme,
-  update: 0
+  update: 0,
+  tooltip: {
+    pos: [0, 0],
+    data: [],
+    pinned: false
+  }
 }
 
 // ------------------------------------
 // Action Handlers
 // ------------------------------------
 const ACTION_HANDLERS = {
-  [FORCE_UPDATE]: (state=initialState, action) => {
-    return {
-      ...state,
-      update: ++state.update
-    } // hack to force update on deep props
-  },
+  [UPDATE_TOOLTIP]: (state=initialState, action) => ({
+    ...state,
+    tooltip: {
+      ...state.tooltip,
+      ...action.update
+    }
+  }),
+  [FORCE_UPDATE]: (state=initialState, action) => ({
+    ...state,
+    update: ++state.update
+  }), // hack to force update on deep props
   [ADD_LAYER]: (state = initialState, action) => {
     let newState = Object.assign({}, state);
     if(state.map){
@@ -226,6 +242,7 @@ const ACTION_HANDLERS = {
     const layer = newState.layers[action.layerName],
       filter = layer.filters[action.filterName];
     filter.value = action.value;
+    newState.layers[action.layerName].loading = !!newState.layers[action.layerName].onFilterFetch;
     newState.update += 1; // hack to force update on deep props
     return newState
   }

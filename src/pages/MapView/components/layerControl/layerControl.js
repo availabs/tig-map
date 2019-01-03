@@ -34,7 +34,7 @@ import { removeLayer, toggleLayerVisibility } from '../../store/MapStore'
       this.props.toggleLayerVisibility(layerName)
     }
 
-    console.log('render lc', layer, layer.visible)
+console.log('<LayerControl.render>', layer, layer.loading)
     return (
       <div>
         <div className='active-layer-container' style={LayerControlStyle}>
@@ -44,6 +44,7 @@ import { removeLayer, toggleLayerVisibility } from '../../store/MapStore'
             onToggleVisibility={toggleVisibility}
             isVisible={layer.visible}
             onToggleEnableConfig={toggleConfig}
+            loading={ layer.loading }
           />
         </div>
         {this.state.showConfig 

@@ -9,7 +9,8 @@ import {
   EyeUnseen,
   VertDots,
   ArrowDown,
-  Trash
+  Trash,
+  Clock
 } from 'components/common/icons';
 
 import {InlineInput, StyledPanelHeader} from 'components/common/styled-components';
@@ -120,8 +121,10 @@ const LayerPanelHeader = ({
   onToggleEnableConfig,
   onRemoveLayer,
   showRemoveLayer,
-  theme
+  theme,
+  loading
 }) => (
+console.log("LOADING??????????",loading),
   <StyledLayerPanelHeader
     className={classnames('layer-panel__header', {
       'sort--handle': !isConfigActive
@@ -152,6 +155,18 @@ const LayerPanelHeader = ({
           <div className="layer__title__type">{layerType}</div>
         </div>
       </LayerTitleSection>
+      { loading ? 
+        <PanelHeaderAction
+          className="layer__loading-layer"
+          id={layerId}
+          tooltip={'Layer Loading'}
+          onClick={null}
+          tooltipType="error"
+          IconComponent={Clock}
+          
+        />
+        : null
+      }
     </HeaderLabelSection>
     <HeaderActionSection className="layer-panel__header__actions">
       {showRemoveLayer ? (
