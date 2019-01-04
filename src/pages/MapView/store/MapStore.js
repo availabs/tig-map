@@ -19,9 +19,11 @@ const FETCH_LAYER_DATA = 'FETCH_LAYER_DATA'
 const FETCH_LAYER_DATA_SUCESS = 'FETCH_LAYER_DATA_SUCESS'
 const FETCH_LAYER_DATA_ERROR = 'FETCH_LAYER_DATA_ERROR'
 const UPDATE_LAYER_FILTER = 'UPDATE_LAYER_FILTER' 
+const UPDATE_LAYER_LEGEND = 'UPDATE_LAYER_LEGEND' 
 
 const FORCE_UPDATE = "FORCE_UPDATE"
 const UPDATE_TOOLTIP = "UPDATE_TOOLTIP"
+const SET_LAYER_LOADING = "SET_LAYER_LOADING"
 
 // ------------------------------------
 // Actions
@@ -76,6 +78,7 @@ export const receiveData = (data,layerName) => {
 
 export const updateFilter = (layerName, filterName, value) => {
   return (dispatch, getState) => {
+    const prev = getState().map.layers[layerName].filters[filterName].value
     return (
       dispatch({
         type: UPDATE_LAYER_FILTER,
@@ -86,7 +89,7 @@ export const updateFilter = (layerName, filterName, value) => {
       Promise.resolve()
     ).then(()=> {
       if(getState().map.layers[layerName].onFilterFetch) {
-        return getState().map.layers[layerName].onFilterFetch(getState().map.layers[layerName])
+        return getState().map.layers[layerName].onFilterFetch(getState().map.layers[layerName], filterName, prev, value)
         .then(data => {
           console.log('did we get data?')
           dispatch(receiveData(data,layerName))
@@ -121,6 +124,22 @@ export const forceUpdate = () =>
   dispatch => dispatch({
     type: FORCE_UPDATE
   })
+
+export const updateLegend = (layerName, update) =>
+  (dispatch, getState) => {
+    const layer = getState().map.layers[layerName];
+    if (!layer.legend) return;
+
+    layer.loading = true;
+    dispatch(forceUpdate());
+
+    layer.legend = {
+      ...layer.legend,
+      ...update
+    }
+    return layer.legend.onChange(layer)
+      .then(data => dispatch(receiveData(data, layerName)))
+  }
 
 // export const fetchLayerData = (layerName) => {
 //   return dispatch => {
@@ -243,7 +262,7 @@ const ACTION_HANDLERS = {
       filter = layer.filters[action.filterName];
     filter.value = action.value;
     newState.layers[action.layerName].loading = !!newState.layers[action.layerName].onFilterFetch;
-    newState.update += 1; // hack to force update on deep props
+    ++newState.update; // hack to force update on deep props
     return newState
   }
 };

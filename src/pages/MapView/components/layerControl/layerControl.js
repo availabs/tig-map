@@ -1,7 +1,10 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
+
 import LayerHeader from './layerHeader'
 import LayerFilterPanel from './layerFilterPanel'
+
+import LegendSelector from "./legendSelector"
 
 import { removeLayer, toggleLayerVisibility } from '../../store/MapStore'
 
@@ -34,7 +37,7 @@ import { removeLayer, toggleLayerVisibility } from '../../store/MapStore'
       this.props.toggleLayerVisibility(layerName)
     }
 
-console.log('<LayerControl.render>', layer, layer.loading)
+// console.log('<LayerControl.render>', layer, layer.loading)
     return (
       <div>
         <div className='active-layer-container' style={LayerControlStyle}>
@@ -47,6 +50,9 @@ console.log('<LayerControl.render>', layer, layer.loading)
             loading={ layer.loading }
           />
         </div>
+        { !this.state.showConfig || !layer.legend ? null :
+          <LegendSelector layerName={ layerName }/>
+        }
         {this.state.showConfig 
           ? <LayerFilterPanel layerName={layerName} />
           : ''

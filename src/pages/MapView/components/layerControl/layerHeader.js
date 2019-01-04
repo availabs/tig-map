@@ -124,7 +124,6 @@ const LayerPanelHeader = ({
   theme,
   loading
 }) => (
-console.log("LOADING??????????",loading),
   <StyledLayerPanelHeader
     className={classnames('layer-panel__header', {
       'sort--handle': !isConfigActive

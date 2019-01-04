@@ -8,6 +8,78 @@ import { connect } from 'react-redux';
 
 import * as d3scale from "d3-scale"
 
+const HorizontalLegend = ({ theme, type, format, scale, range, domain, title }) => {
+  let legendContainerStyle = {
+    width: '100%',
+    display: 'flex',
+    color: theme.textColor 
+  }
+
+  let colorBlock = {
+    alignItems: 'stretch',
+    flexGrow: 1,
+    height: 20
+  }
+
+  let textBlock = {
+    width: (100 / (type === 'linear' ? scale.ticks(5).length : range.length)) + '%',
+    color: theme.textColor,
+    display: 'inline-block',
+    textAlign: 'right',
+  }
+  return (
+    <div style={{width: '100%',  padding: 10, backgroundColor: theme.sidePanelHeaderBg}}>
+      <h5 style={{color: theme.textColor }}>{title}</h5>
+      <div className='legend-container' style={legendContainerStyle}>
+        {
+          type === "linear" ?
+            scale.ticks(5).map(t => <div key={ t } style={ { ...colorBlock , backgroundColor: scale(t) } }/>)
+          :
+            range.map((r, i) => <div key={ i } style={ { ...colorBlock, backgroundColor: r } }/>)
+        }
+      </div>
+      <div style={{width:'100%', position: 'relative', right: -3}}>
+        { 
+          type === "ordinal" ?
+            domain.map(d => <div key={ d } style={ textBlock } >{ format(d) }</div>)
+          : type === "linear" ?
+            scale.ticks(5).map(t => <div key={ t } style={ textBlock }>{ format(t) }</div>)
+          :
+            range.map((r, i) => <div key={ i } style={ textBlock }>{ format(scale.invertExtent(r)[1]) }</div>)
+        }
+        <div style={ textBlock }></div>
+      </div>
+    </div>
+  )
+}
+
+const VerticalLegend = ({ theme, type, format, scale, range, domain, title }) => {
+  range = (type === "linear") ? scale.ticks(5).map(t => scale(t)) : range
+  return (
+    <div style={ { width: "100%", padding: "10px", backgroundColor: theme.sidePanelHeaderBg } }>
+      <h5 style={{color: theme.textColor }}>{title}</h5>
+      <table>
+        <tbody>
+          {
+            type === "ordinal" ?
+              domain.map(d =>
+                <tr>
+                  <td>
+                    <div style={ { width: "20px", height: "20px", backgroundColor: scale(d) } }/>
+                  </td>
+                  <td style={ { paddingLeft: "5px" } }>
+                    { format(d) }
+                  </td>
+                </tr>
+              )
+            : null
+          }
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
  class Legend extends Component {
 
   getScale() {
@@ -24,55 +96,15 @@ import * as d3scale from "d3-scale"
   }
   
   render() {
-    const { theme, domain, range } = this.props
+    const { domain, range, vertical } = this.props
 
     const scale = this.getScale()
       .domain(this.props.domain)
       .range(this.props.range)
 
-    let legendContainerStyle = {
-      width: '100%',
-      display: 'flex',
-      color: theme.textColor 
-    }
-
-    let colorBlock = {
-      alignItems: 'stretch',
-      flexGrow: 1,
-      height: 20
-    }
-
-    let textBlock = {
-      width: (100 / (this.props.type === 'linear' ? scale.ticks(5).length : this.props.range.length)) + '%',
-      color: theme.textColor,
-      display: 'inline-block',
-      textAlign: 'right',
-    }
-
-    return (
-      <div style={{width: '100%',  padding: 10, backgroundColor: theme.sidePanelHeaderBg}}>
-        <h5 style={{color: theme.textColor }}>{this.props.title}</h5>
-        <div className='legend-container' style={legendContainerStyle}>
-          {
-            this.props.type === "linear" ?
-              scale.ticks(5).map(t => <div key={ t } style={ { ...colorBlock , backgroundColor: scale(t) } }/>)
-            :
-              range.map(r => <div key={ r } style={ { ...colorBlock, backgroundColor: r } }/>)
-          }
-        </div>
-        <div style={{width:'100%', position: 'relative', right: -3}}>
-          { 
-            this.props.type === "ordinal" ?
-              domain.map(d => <div key={ d } style={ textBlock } >{ this.props.format(d) }</div>)
-            : this.props.type === "linear" ?
-              scale.ticks(5).map(t => <div key={ t } style={ textBlock }>{ this.props.format(t) }</div>)
-            :
-              range.map(r => <div key={ r } style={ textBlock }>{ this.props.format(scale.invertExtent(r)[1]) }</div>)
-          }
-          <div style={ textBlock }></div>
-        </div>
-      </div>
-    );
+    return vertical ?
+        <VerticalLegend { ...this.props } scale={ scale }/>
+      : <HorizontalLegend { ...this.props } scale={ scale }/>;
   }
 }
 
@@ -81,7 +113,8 @@ Legend.defaultProps = {
   range: [],
   domain: [],
   type: "linear",
-  format: d => d
+  format: d => d,
+  vertical: false
 }
 
 export default Legend

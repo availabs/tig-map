@@ -48,15 +48,14 @@ import TMCInspector from './tmcInspector'
     }
 
     const activeLayers = Object.values(this.props.layers).filter(l => l.active),
-      activeLegends = activeLayers.reduce((a, c) => c.legend && c.legend.domain.length ? a.concat(c.legend) : a, []);
-
+      activeLegends = activeLayers.reduce((a, c) => c.legend && c.legend.active && c.legend.domain.length ? a.concat(c.legend) : a, []);
     return (
       <div className='sidebar-container' style={sideBarContainerStyle}>
         <div className='sidebar' style={sidebarStyle}>
           <div className='sidebar-inner' style={sidebarInnerStyle}>
             <div className='sidebar-content' style={sidebarContentStyle}>
               {
-                activeLegends.map(l => <Legend theme={ this.props.theme } { ...l }/>)
+                activeLegends.map((l, i) => <Legend key={ i } theme={ this.props.theme } { ...l }/>)
               }
               {this.tmcDisplay()}
             </div>
