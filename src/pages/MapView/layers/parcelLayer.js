@@ -290,11 +290,11 @@ const parcelLayer = {
         addPopUp(map, 'nys_1811_parcels', feature => {
             const id = feature.properties.OBJECTID;
             try {
-                const graph = falcorGraph.getCache().parcel.byId,
-                    measure = parcelLayer.filters.measure.value;
+                const graph = falcorGraph.getCache().parcel.byId;
                 return [
                     "PARCEL DATA",
-                    [getMeasureLabel(measure), getMeasureFormat(measure, graph[id][measure])]
+                    [getMeasureLabel("full_marke"), getMeasureFormat("full_marke", graph[id]["full_marke"])],
+                    [getMeasureLabel("prop_class"), getMeasureFormat("prop_class", graph[id]["prop_class"])]
                 ]
             }
             catch (e) {
