@@ -50,10 +50,10 @@ import { removeLayer, toggleLayerVisibility } from '../../store/MapStore'
             loading={ layer.loading }
           />
         </div>
-        { !this.state.showConfig || !layer.legend ? null :
+        { !this.state.showConfig || !layer.legend || !layer.legend.active ? null :
           <LegendSelector layerName={ layerName }/>
         }
-        {this.state.showConfig 
+        {this.state.showConfig && layer.filters
           ? <LayerFilterPanel layerName={layerName} />
           : ''
         }

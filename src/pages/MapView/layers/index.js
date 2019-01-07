@@ -5,6 +5,7 @@ import tipLayer from './tipLayer'
 import acsLayer from './acsLayer'
 
 import parcelLayer from './parcelLayer'
+import buildingsLayer from "./buildingsLayer"
 
 export default {
 	npmrdsLayer,
@@ -12,5 +13,6 @@ export default {
 	hubLayer,
 	tipLayer,
 	acsLayer,
-	parcelLayer
+	parcelLayer,
+	buildingsLayer
 }

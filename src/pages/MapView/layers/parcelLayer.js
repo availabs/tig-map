@@ -14,7 +14,8 @@ import {  } from "../store/MapStore"
 
 import {
     scaleQuantile,
-    scaleOrdinal
+    scaleOrdinal,
+    scaleQuantize
 } from "d3-scale"
 
 import { fnum } from "utils/sheldusUtils"
@@ -172,12 +173,26 @@ const processFullMarket = parcelids => {
                 .range(range);
             parcelLayer.legend.domain = domain;
             break;
+        case "quantize":
+            scale = scaleQuantize()
+                .domain([min, max])
+                .range(range);
+            parcelLayer.legend.domain = [min, max];
+            break;
     }
 
     for (const pid in values) {
         colors[pid] = scale(values[pid])
     }
     return colors
+}
+
+const NON_ORDINAL_LEGEND = {
+    type: "quantile",
+    types: ["quantile", "quantize"],
+    format: getMeasureFormat.bind(null, "full_marke"),
+    vertical: false,
+    range: QUANTILE_RANGE
 }
 
 const onMeasureChange = (prevValue, newValue) => {
@@ -188,11 +203,10 @@ const onMeasureChange = (prevValue, newValue) => {
         parcelLayer.legend.vertical = true
     }
     else if (prevValue === "prop_class" && newValue === "full_marke") {
-        parcelLayer.legend.type = "quantile";
-        parcelLayer.legend.types = ["quantile"]
-        parcelLayer.legend.format = getMeasureFormat.bind(null, "full_marke")
-        parcelLayer.legend.vertical = false
-        parcelLayer.legend.range = QUANTILE_RANGE
+        parcelLayer.legend = {
+            ...parcelLayer.legend,
+            ...NON_ORDINAL_LEGEND
+        }
     }
 }
 
@@ -237,17 +251,15 @@ const parcelLayer = {
     legend: {
         active: true,
 
+        ...NON_ORDINAL_LEGEND,
+
         type: "quantile",
 
-        types: ["quantile"],
+        domain: [],
+
         onChange: onFilterFetch,
 
-        domain: [],
-        range: QUANTILE_RANGE,
-
-        title: "Parcel Legend",
-        format: d => `$${ fnum(d) }`,
-        vertical: false
+        title: "Parcel Legend"
     },
     onFilterFetch,
     receiveData: ({ colors, parcelids }, map) => {
