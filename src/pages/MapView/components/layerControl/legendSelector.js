@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 
 import styled from 'styled-components';
-import {StyledPanelHeader} from 'components/common/styled-components';
 import {
   PanelLabel,
   StyledPanelDropdown
@@ -24,16 +23,6 @@ const StyledFilterPanel = styled.div`
   .filter-panel__filter {
     margin-top: 24px;
   }
-`;
-
-const StyledFilterHeader = StyledPanelHeader.extend`
-  cursor: pointer;
-  padding: 10px 12px;
-`;
-
-const StyledFilterContent = styled.div`
-  background-color: ${props => props.theme.panelBackground};
-  padding: 12px;
 `;
 
 class ColorSelector extends Component {

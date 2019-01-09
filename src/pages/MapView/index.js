@@ -14,6 +14,7 @@ import Sidebar from './components/sidebar'
 import Infobox from './components/infobox/Infobox'
 import SliderContainer from './components/slider/slider-container'
 import MapPopover from "./components/popover/MapPopover"
+import MapModal from "./components/modal/MapModal"
 
 import './incidents.css'
 
@@ -79,6 +80,7 @@ class MapView extends Component {
         <Sidebar />
         <Infobox />
         <MapPopover />
+        <MapModal />
       </div>
     );
   }

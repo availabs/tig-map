@@ -24,6 +24,7 @@ const UPDATE_LAYER_LEGEND = 'UPDATE_LAYER_LEGEND'
 const FORCE_UPDATE = "FORCE_UPDATE"
 const UPDATE_TOOLTIP = "UPDATE_TOOLTIP"
 const SET_LAYER_LOADING = "SET_LAYER_LOADING"
+const TOGGLE_LAYER_MODAL = "TOGGLE_LAYER_MODAL"
 
 // ------------------------------------
 // Actions
@@ -141,6 +142,17 @@ export const updateLegend = (layerName, update) =>
       .then(data => dispatch(receiveData(data, layerName)))
   }
 
+export const toggleModal = layerName =>
+  (dispatch, getState) => {
+    const layer = getState().map.layers[layerName],
+      show = layer.modal ? !layer.modal.show : false;
+    dispatch({
+      type: TOGGLE_LAYER_MODAL,
+      layerName,
+      show
+    })
+  }
+
 // export const fetchLayerData = (layerName) => {
 //   return dispatch => {
 //     // console.log('----- USER LOGIN -----');
@@ -188,6 +200,21 @@ const initialState = {
 // Action Handlers
 // ------------------------------------
 const ACTION_HANDLERS = {
+  [TOGGLE_LAYER_MODAL]: (state=initialState, action) => {
+    const newState = { ...state };
+    ++newState.update;
+    for (const ln in newState.layers) {
+      const layer = newState.layers[ln];
+      if (layer.modal) {
+        layer.modal.show = false;
+      }
+    }
+    const layer = newState.layers[action.layerName];
+    if (layer.modal) {
+      layer.modal.show = action.show;
+    }
+    return newState;
+  },
   [UPDATE_TOOLTIP]: (state=initialState, action) => ({
     ...state,
     tooltip: {
