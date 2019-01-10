@@ -6,6 +6,16 @@ import {
     PanelHeaderTitle,
     PanelContent
 } from "components/common/styled-components"
+import {
+    ArrowDown,
+    ArrowRight
+} from "components/common/icons"
+
+import store from "store"
+import {
+    toggleModal,
+    toggleInfoBox
+} from "../store/MapStore"
 
 import { addLayers, removeLayers, toggleVisibility } from './utils'
 
@@ -48,6 +58,11 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {}
 const Connected = connect(mapStateToProps, mapDispatchToProps)(BuildingsModal)
 
+const InfoBox = ({}) =>
+    <div style={ { padding: "10px", fontSize: "24px" } }>
+        Buildings Layer Test Info Box
+    </div>
+
 const buildingsLayer = {
 	name: 'NYS Buildings',
     type: 'buildings',
@@ -76,8 +91,27 @@ const buildingsLayer = {
 	active: false,
     modal: {
         comp: Connected,
-        show: false
-    }
+        show: false,
+        controlButton: false
+    },
+    infoBoxes: {
+        test: {
+            comp: InfoBox,
+            show: false
+        }
+    },
+    actions: [
+        {
+            Icon: ArrowDown,
+            action: () => store.dispatch(toggleModal("buildingsLayer")),
+            tooltip: "Open Modal"
+        },
+        {
+            Icon: ArrowRight,
+            action: () => store.dispatch(toggleInfoBox("buildingsLayer", "test")),
+            tooltip: "Open Info Box"
+        }
+    ]
 }
 
 export default buildingsLayer

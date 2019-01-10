@@ -5,6 +5,7 @@ import LayerHeader from './layerHeader'
 import LayerFilterPanel from './layerFilterPanel'
 
 import LegendSelector from "./legendSelector"
+import PanelHeaderAction from './panelHeaderAction';
 import styled from 'styled-components';
 import {
   PanelLabel,
@@ -75,7 +76,7 @@ const ModalToggle = ({ layer, layerName, toggle }) =>
             loading={ layer.loading }
           />
         </div>
-        { !showConfig || !layer.modal ? null :
+        { !showConfig || !layer.modal || !layer.modal.controlButton ? null :
           <ModalToggle layer={ layer }
             layerName={ layerName }
             toggle={ e => this.props.toggleModal(layerName) }/>

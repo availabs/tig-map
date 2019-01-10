@@ -6,7 +6,7 @@ import user from './modules/user'
 
 import map from 'pages/MapView/store/MapStore'
 
-
+import irvs from "./modules/irvs"
 import messages from "./modules/messages"
 
 import createHistory from 'history/createBrowserHistory'
@@ -35,7 +35,8 @@ const store = createStore(
     messages,
     graph,
     map,
-    router: routerReducer
+    router: routerReducer,
+    irvs
   }),
   applyMiddleware(...middleware)
 )

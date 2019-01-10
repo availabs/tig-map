@@ -3,16 +3,16 @@ import { connect } from "react-redux"
 
 import { SECTION_META } from "./irvs_meta"
 
-import IrvsOption from "./IrvsOption"
+import IrvsSelect from "./IrvsSelect"
 
 class IrvsSection extends React.Component {
 	render() {
 		const { section } = this.props;
 		return(
-			<div>
-				{
-					SECTION_META[section].values.map(d => <IrvsOption key={ d } option={ d }/>)
-				}
+			<div style={ { paddingBottom: "30px" } }>
+					{
+						SECTION_META[section].values.map(d => <IrvsSelect key={ d } option={ d }/>)
+					}
 			</div>
 		)
 	}

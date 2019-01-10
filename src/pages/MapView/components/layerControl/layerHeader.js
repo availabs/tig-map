@@ -13,6 +13,8 @@ import {
   Clock
 } from 'components/common/icons';
 
+import {Tooltip} from 'components/common/styled-components';
+
 import {InlineInput, StyledPanelHeader} from 'components/common/styled-components';
 
 
@@ -106,6 +108,34 @@ const DragHandle = styled.div`
   }
 `;
 
+const ActionBarContainer = styled.div`
+  display: flex;
+`
+const IconWrapper = styled.div`
+  color: ${ props => props.theme.textColor };
+  display: inline-flex;
+  margin-left: 5px;
+`
+
+const ActionBar = ({ actions }) =>
+  <ActionBarContainer>
+    {
+      actions.map((a, i) =>
+        <IconWrapper>
+          <a.Icon data-tip
+            data-for={ `action-bar-${ i }` }
+            onClick={ a.action }/>
+          <Tooltip
+            id={ `action-bar-${ i }` }
+            effect="solid"
+            delayShow={ 500 }>
+            <span>{ a.tooltip }</span>
+          </Tooltip>
+        </IconWrapper>
+      )
+    }
+  </ActionBarContainer>
+
 const LayerPanelHeader = ({
   className,
   idx,
@@ -115,6 +145,7 @@ const LayerPanelHeader = ({
   label,
   layerId,
   layerType,
+  layer,
   labelRCGColorValues,
   onToggleVisibility,
   onUpdateLayerLabel,
@@ -151,7 +182,12 @@ const LayerPanelHeader = ({
       <LayerTitleSection className="layer__title" theme={theme}>
         <div>
           <LayerLabelEditor label={label} onEdit={onUpdateLayerLabel} theme={theme}/>
-          <div className="layer__title__type">{layerType}</div>
+          <div className="layer__title__type">
+            {
+              !layer.actions ? <span>{ layerType }</span> :
+              <ActionBar actions={ layer.actions }/>
+            }
+          </div>
         </div>
       </LayerTitleSection>
       { loading ? 

@@ -22,14 +22,16 @@ import { fnum } from "utils/sheldusUtils"
 
 import COLOR_RANGES from "constants/color-ranges"
 
-const MEASURES = [
+import ParcelLayerModal from "./layer_modals/ParcelLayerModal"
+
+export const MEASURES = [
     { value: "full_marke", name: "Full Market Value" },
     { value: "prop_class", name: "Property Type" },
     { value: "owner_type", name: "Owner Type" }
 ]
-const getMeasureLabel = value =>
+export const getMeasureLabel = value =>
     MEASURES.reduce((a, c) => c.value === value ? c.name : a, value);
-const getMeasureFormat = (measure, value) => {
+export const getMeasureFormat = (measure, value) => {
     switch (measure) {
         case "prop_class":
             value = +value;
@@ -349,13 +351,6 @@ const parcelLayer = {
                             return +aCounty - +bCounty;
                         })
                     })
-                // return falcorGraph.get(["geo", geoids, "name"])
-                //     .then(res => {
-                //         const names = res.json.geo;
-                //         parcelLayer.filters.area.domain = geoids.map(geoid => {
-                //             return { value: geoid, name: names[geoid].name }
-                //         })
-                //     })
             })
             .then(() => store.dispatch(update(falcorGraph.getCache())))
             .then(() => store.dispatch(forceUpdate()))
@@ -370,7 +365,12 @@ const parcelLayer = {
     },
 	onRemove: removeLayers,
     toggleVisibility: toggleVisibility,
-	active: false
+	active: false,
+    modal: {
+        comp: ParcelLayerModal,
+        show: false,
+        controlButton: true
+    }
 }
 
 const addPopUp = (map, layer, dataFunc) => {
