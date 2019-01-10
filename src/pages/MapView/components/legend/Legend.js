@@ -63,7 +63,7 @@ const VerticalLegend = ({ theme, type, format, scale, range, domain, title }) =>
           {
             type === "ordinal" ?
               domain.map(d =>
-                <tr>
+                <tr key={ d }>
                   <td>
                     <div style={ { width: "20px", height: "20px", backgroundColor: scale(d) } }/>
                   </td>

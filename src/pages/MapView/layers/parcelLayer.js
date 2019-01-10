@@ -14,20 +14,24 @@ import {  } from "../store/MapStore"
 
 import {
     scaleQuantile,
-    scaleOrdinal
+    scaleOrdinal,
+    scaleQuantize
 } from "d3-scale"
 
 import { fnum } from "utils/sheldusUtils"
 
 import COLOR_RANGES from "constants/color-ranges"
 
-const MEASURES = [
+import ParcelLayerModal from "./layer_modals/ParcelLayerModal"
+
+export const MEASURES = [
     { value: "full_marke", name: "Full Market Value" },
-    { value: "prop_class", name: "Property Type" }
+    { value: "prop_class", name: "Property Type" },
+    { value: "owner_type", name: "Owner Type" }
 ]
-const getMeasureLabel = value =>
+export const getMeasureLabel = value =>
     MEASURES.reduce((a, c) => c.value === value ? c.name : a, value);
-const getMeasureFormat = (measure, value) => {
+export const getMeasureFormat = (measure, value) => {
     switch (measure) {
         case "prop_class":
             value = +value;
@@ -41,6 +45,21 @@ const getMeasureFormat = (measure, value) => {
             if (value < 800) return "Industrial"
             if (value < 900) return "Public Services"
             return "Wild, Forested, Conservation Lands & Public Parks"
+        case "owner_type":
+            const map = {
+                "1": "Federal",
+                "2": "State",
+                "3": "County",
+                "4": "City",
+                "5": "Town",
+                "6": "Village",
+                "7": "Mixed Gov’t",
+                "8": "Private",
+                "9": "Public School District or BOCES",
+                "10": "Road Right of Way",
+                "-999": "Unknown",
+            }
+            return map[value];
         default:
             return `$${ fnum(value) }`;
     }
@@ -91,18 +110,18 @@ const onFilterFetch = (layer, filterName, prev, value) => {
                 .then(() => {
                     const measure = parcelLayer.filters.measure.value;
                     let colors = {};
-                    if (measure === "prop_class") {
-                        colors = processPropType(parcelids);
+                    if (measure === "full_marke") {
+                        colors = processNonOrdinal(parcelids);
                     }
                     else {
-                        colors = processFullMarket(parcelids);
+                        colors = processOrdinal(parcelids);
                     }
                     return { colors, parcelids };
                 })
         })
 }
 
-const processPropType = parcelids => {
+const processOrdinal = parcelids => {
     const measure = parcelLayer.filters.measure.value,
         graph = falcorGraph.getCache().parcel.byId,
 
@@ -116,7 +135,9 @@ const processPropType = parcelids => {
     parcelids.forEach(pid => {
         let value = graph[pid][measure];
         if (value) {
-            value = +(graph[pid][measure].toString()[0]) * 100;
+            if (measure === "prop_class") {
+                value = +(graph[pid][measure].toString()[0]) * 100;
+            }
             values[pid] = value;
             domainMap[value] = true;
         }
@@ -141,7 +162,7 @@ const processPropType = parcelids => {
     return colors
 }
 
-const processFullMarket = parcelids => {
+const processNonOrdinal = parcelids => {
     const measure = parcelLayer.filters.measure.value,
         graph = falcorGraph.getCache().parcel.byId,
 
@@ -172,6 +193,12 @@ const processFullMarket = parcelids => {
                 .range(range);
             parcelLayer.legend.domain = domain;
             break;
+        case "quantize":
+            scale = scaleQuantize()
+                .domain([min, max])
+                .range(range);
+            parcelLayer.legend.domain = [min, max];
+            break;
     }
 
     for (const pid in values) {
@@ -180,19 +207,29 @@ const processFullMarket = parcelids => {
     return colors
 }
 
+const NON_ORDINAL_LEGEND = {
+    type: "quantile",
+    types: ["quantile", "quantize"],
+    format: getMeasureFormat.bind(null, "full_marke"),
+    vertical: false,
+    range: QUANTILE_RANGE
+}
+
 const onMeasureChange = (prevValue, newValue) => {
-    if (prevValue === "full_marke" && newValue === "prop_class") {
-        parcelLayer.legend.type = "ordinal";
-        parcelLayer.legend.types = ["ordinal"]
-        parcelLayer.legend.format = getMeasureFormat.bind(null, "prop_class")
-        parcelLayer.legend.vertical = true
-    }
-    else if (prevValue === "prop_class" && newValue === "full_marke") {
-        parcelLayer.legend.type = "quantile";
-        parcelLayer.legend.types = ["quantile"]
-        parcelLayer.legend.format = getMeasureFormat.bind(null, "full_marke")
-        parcelLayer.legend.vertical = false
-        parcelLayer.legend.range = QUANTILE_RANGE
+    if (prevValue !== newValue) {
+        switch (newValue) {
+            case "full_marke":
+                parcelLayer.legend = {
+                    ...parcelLayer.legend,
+                    ...NON_ORDINAL_LEGEND
+                }
+                break;
+            default:
+                parcelLayer.legend.type = "ordinal";
+                parcelLayer.legend.types = ["ordinal"]
+                parcelLayer.legend.format = getMeasureFormat.bind(null, newValue)
+                parcelLayer.legend.vertical = true
+        }
     }
 }
 
@@ -237,17 +274,15 @@ const parcelLayer = {
     legend: {
         active: true,
 
+        ...NON_ORDINAL_LEGEND,
+
         type: "quantile",
 
-        types: ["quantile"],
+        domain: [],
+
         onChange: onFilterFetch,
 
-        domain: [],
-        range: QUANTILE_RANGE,
-
-        title: "Parcel Legend",
-        format: d => `$${ fnum(d) }`,
-        vertical: false
+        title: "Parcel Legend"
     },
     onFilterFetch,
     receiveData: ({ colors, parcelids }, map) => {
@@ -278,11 +313,12 @@ const parcelLayer = {
         addPopUp(map, 'nys_1811_parcels', feature => {
             const id = feature.properties.OBJECTID;
             try {
-                const graph = falcorGraph.getCache().parcel.byId,
-                    measure = parcelLayer.filters.measure.value;
+                const graph = falcorGraph.getCache().parcel.byId;
                 return [
                     "PARCEL DATA",
-                    [getMeasureLabel(measure), getMeasureFormat(measure, graph[id][measure])]
+                    [getMeasureLabel("full_marke"), getMeasureFormat("full_marke", graph[id]["full_marke"])],
+                    [getMeasureLabel("prop_class"), getMeasureFormat("prop_class", graph[id]["prop_class"])],
+                    [getMeasureLabel("owner_type"), getMeasureFormat("owner_type", graph[id]["owner_type"])]
                 ]
             }
             catch (e) {
@@ -306,14 +342,15 @@ const parcelLayer = {
                         parcelLayer.filters.area.domain = geoids.map(geoid => {
                             return { value: geoid, name: graph[geoid].name }
                         })
+                        .sort((a, b) => {
+                            const aCounty = a.value.slice(0, 5),
+                                bCounty = b.value.slice(0, 5);
+                            if (aCounty === bCounty) {
+                                return a.name < b.name ? -1 : 1;
+                            }
+                            return +aCounty - +bCounty;
+                        })
                     })
-                // return falcorGraph.get(["geo", geoids, "name"])
-                //     .then(res => {
-                //         const names = res.json.geo;
-                //         parcelLayer.filters.area.domain = geoids.map(geoid => {
-                //             return { value: geoid, name: names[geoid].name }
-                //         })
-                //     })
             })
             .then(() => store.dispatch(update(falcorGraph.getCache())))
             .then(() => store.dispatch(forceUpdate()))
@@ -328,7 +365,12 @@ const parcelLayer = {
     },
 	onRemove: removeLayers,
     toggleVisibility: toggleVisibility,
-	active: false
+	active: false,
+    modal: {
+        comp: ParcelLayerModal,
+        show: false,
+        controlButton: true
+    }
 }
 
 const addPopUp = (map, layer, dataFunc) => {

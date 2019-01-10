@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 
+import Logo from "components/mitigate-ny/Logo"
+
 // import deepEqual from 'deep-equal'
 
  class SidebarHeader extends Component {
@@ -18,7 +20,7 @@ import { connect } from 'react-redux';
 
     return (
       <div className='sidebar-header' style={sidebarHeaderStyle}>
-        <img style={{paddingLeft: 45, height: 45}} src='/img/nymtc_logo_white.svg' />
+        <Logo width={ 300 } fill={ this.props.theme.textColorHl }/>
       </div>
     );
   }

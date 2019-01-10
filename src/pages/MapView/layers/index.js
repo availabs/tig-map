@@ -1,13 +1,10 @@
-import npmrdsLayer from './npmrdsLayer'
-import bpmLayer from './bpmLayer'
-import hubLayer from './hubBoundLayer'
-import tipLayer from './tipLayer'
-import acsLayer from './acsLayer'
+// import npmrdsLayer from './npmrdsLayer'
 import buildings from './3d-buildings'
-
 import parcelLayer from './parcelLayer'
+import buildingsLayer from "./buildingsLayer"
 
 export default {
 	parcelLayer,
 	buildings
+	buildingsLayer
 }

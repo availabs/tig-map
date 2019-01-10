@@ -5,6 +5,8 @@
 // import PublicPlan from './pages/PublicPlan'
 import MapView from './pages/MapView'
 
+import IRVS from "./pages/irvs"
+
 
 // -- Util Routes
 // import Login from './pages/Login'
@@ -13,6 +15,7 @@ import NoMatch from './pages/404.js'
 
 const routes = [
   MapView,
+  IRVS,
   NoMatch
 ]
 

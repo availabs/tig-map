@@ -24,6 +24,8 @@ const UPDATE_LAYER_LEGEND = 'UPDATE_LAYER_LEGEND'
 const FORCE_UPDATE = "FORCE_UPDATE"
 const UPDATE_TOOLTIP = "UPDATE_TOOLTIP"
 const SET_LAYER_LOADING = "SET_LAYER_LOADING"
+const TOGGLE_LAYER_MODAL = "TOGGLE_LAYER_MODAL"
+const TOGGLE_INFO_BOX = "TOGGLE_INFO_BOX"
 
 // ------------------------------------
 // Actions
@@ -141,6 +143,29 @@ export const updateLegend = (layerName, update) =>
       .then(data => dispatch(receiveData(data, layerName)))
   }
 
+export const toggleModal = layerName =>
+  (dispatch, getState) => {
+    const layer = getState().map.layers[layerName],
+      show = layer.modal ? !layer.modal.show : false;
+    dispatch({
+      type: TOGGLE_LAYER_MODAL,
+      layerName,
+      show
+    })
+  }
+export const toggleInfoBox = (layerName, infoBoxName) =>
+  (dispatch, getState) => {
+    const layer = getState().map.layers[layerName],
+      infobox = layer.infoBoxes[infoBoxName],
+      show = !infobox.show;
+    dispatch({
+      type: TOGGLE_INFO_BOX,
+      layerName,
+      infoBoxName,
+      show
+    })
+  }
+
 // export const fetchLayerData = (layerName) => {
 //   return dispatch => {
 //     // console.log('----- USER LOGIN -----');
@@ -181,13 +206,36 @@ const initialState = {
     pos: [0, 0],
     data: [],
     pinned: false
-  }
+  },
+  activeLayers: []
 }
 
 // ------------------------------------
 // Action Handlers
 // ------------------------------------
 const ACTION_HANDLERS = {
+  [TOGGLE_INFO_BOX]: (state=initialState, action) => {
+    const newState = { ...state };
+    ++newState.update;
+    const layer = newState.layers[action.layerName];
+    layer.infoBoxes[action.infoBoxName].show = action.show;
+    return newState;
+  },
+  [TOGGLE_LAYER_MODAL]: (state=initialState, action) => {
+    const newState = { ...state };
+    ++newState.update;
+    for (const ln in newState.layers) {
+      const layer = newState.layers[ln];
+      if (layer.modal) {
+        layer.modal.show = false;
+      }
+    }
+    const layer = newState.layers[action.layerName];
+    if (layer.modal) {
+      layer.modal.show = action.show;
+    }
+    return newState;
+  },
   [UPDATE_TOOLTIP]: (state=initialState, action) => ({
     ...state,
     tooltip: {
@@ -208,6 +256,7 @@ const ACTION_HANDLERS = {
       }
       newLayer.active = true
     }
+    newState.activeLayers.push(action.layerName);
     newState.update += 1; // hack to force update on deep props
     return newState;
   },
@@ -220,6 +269,7 @@ const ACTION_HANDLERS = {
       }
       newLayer.active = false
     }
+    newState.activeLayers = newState.activeLayers.filter(l => l !== action.layerName)
     newState.update += 1; // hack to force update on deep props
     return newState;
   },
