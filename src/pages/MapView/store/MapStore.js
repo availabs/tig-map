@@ -206,7 +206,8 @@ const initialState = {
     pos: [0, 0],
     data: [],
     pinned: false
-  }
+  },
+  activeLayers: []
 }
 
 // ------------------------------------
@@ -255,6 +256,7 @@ const ACTION_HANDLERS = {
       }
       newLayer.active = true
     }
+    newState.activeLayers.push(action.layerName);
     newState.update += 1; // hack to force update on deep props
     return newState;
   },
@@ -267,6 +269,7 @@ const ACTION_HANDLERS = {
       }
       newLayer.active = false
     }
+    newState.activeLayers = newState.activeLayers.filter(l => l !== action.layerName)
     newState.update += 1; // hack to force update on deep props
     return newState;
   },

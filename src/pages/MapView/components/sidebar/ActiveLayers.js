@@ -7,29 +7,18 @@ import LayerControl from '../layerControl/layerControl'
  class ActiveLayers extends Component {
  
   render() {
-    const { layers } = this.props
-    console.log('render ActiveLayers')
+    const { activeLayers } = this.props
     let ActiveLayersStyle = {
       width: '100%',
       display: 'flex',
       flexDirection: 'column',
       padding: 5,
     }
-    
-    console.log('active layer',
-      Object.keys(layers).filter(d => layers[d].active)
-    )
-
     return (
       <div className='active-layer-container' style={ActiveLayersStyle}>
         {
-            Object.keys(layers)
-            .filter(d => layers[d].active)
-            .map(d => {
-              return  <LayerControl key={d} layerName={d} />
-            })
-            
-         }
+          activeLayers.map(al => <LayerControl key={ al } layerName={ al }/>)
+        }
       </div>
     );
   }
@@ -45,8 +34,8 @@ const mapDispatchToProps = {
 const mapStateToProps = state => {
   return {
     theme: state.map.layers,
-    layers: state.map.layers,
-    update: state.map.update
+    update: state.map.update,
+    activeLayers: state.map.activeLayers
   }
 };
 
