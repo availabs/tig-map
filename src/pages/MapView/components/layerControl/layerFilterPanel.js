@@ -42,7 +42,7 @@ const StyledFilterContent = styled.div`
       }
 
       return (
-        <div>
+        <div key={ i }>
           { filter.type === "dropdown" ?
             <SingleSelectFilter 
               setFilter={ dispatchUpdateFilter } 

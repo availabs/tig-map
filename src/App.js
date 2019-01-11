@@ -29,7 +29,6 @@ class App extends Component {
   }
 
   componentWillReceiveProps(newProps) {
-console.log("<App.componentWillReceiveProps>",newProps.user)
     if (newProps.user.attempts) {
       this.setState({ isAuthenticating: false });
     }
