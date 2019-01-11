@@ -27,6 +27,9 @@ const SET_LAYER_LOADING = "SET_LAYER_LOADING"
 const TOGGLE_LAYER_MODAL = "TOGGLE_LAYER_MODAL"
 const TOGGLE_INFO_BOX = "TOGGLE_INFO_BOX"
 
+const UPDATE_DRAG = "UPDATE_DRAG"
+const DROP_LAYER = "DROP_LAYER"
+
 // ------------------------------------
 // Actions
 // ------------------------------------
@@ -189,6 +192,16 @@ export const updateTooltip = update =>
     update
   })
 
+export const updateDrag = update =>
+  dispatch => dispatch({
+    type: UPDATE_DRAG,
+    update
+  })
+export const dropLayer = () =>
+  dispatch => dispatch({
+    type: DROP_LAYER
+  })
+
 
 // -------------------------------------
 // Initial State
@@ -207,13 +220,45 @@ const initialState = {
     data: [],
     pinned: false
   },
-  activeLayers: []
+  activeLayers: [],
+  dragging: null,
+  dragover: -1
 }
 
 // ------------------------------------
 // Action Handlers
 // ------------------------------------
 const ACTION_HANDLERS = {
+  [DROP_LAYER]: (state=initialState, action) => {
+    const newState = { ...state };
+    newState.activeLayers = newState.activeLayers.filter(l => l !== newState.dragging);
+    newState.activeLayers.splice(newState.dragover, 0, newState.dragging)
+    ++newState.update;
+    newState.dragging = null;
+    newState.dragover = -1;
+
+    newState.activeLayers.forEach(al => {
+      newState.layers[al].mapBoxLayers.forEach(mbl => {
+        newState.map.removeLayer(mbl.id);
+      })
+    })
+
+    newState.activeLayers.forEach(al => {
+      newState.layers[al].mapBoxLayers.forEach(mbl => {
+        newState.map.addLayer(mbl);
+      })
+      if (newState.layers[al].onFilterFetch) {
+        newState.layers[al].onFilterFetch(newState.layers[al])
+          .then(data => newState.layers[al].receiveData(data, newState.map))
+      }
+    })
+    return newState;
+  },
+  [UPDATE_DRAG]: (state=initialState, action) => ({
+    ...state,
+    ...action.update,
+    //update: ++state.update
+  }),
   [TOGGLE_INFO_BOX]: (state=initialState, action) => {
     const newState = { ...state };
     ++newState.update;

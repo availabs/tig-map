@@ -2,9 +2,20 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import LayerControl from '../layerControl/layerControl'
 
+import {
+  dropLayer
+} from '../../store/MapStore'
+
 // import deepEqual from 'deep-equal'
 
  class ActiveLayers extends Component {
+
+  onDragOver(e) {
+    e.preventDefault()
+  }
+  onDrop(e) {
+    this.props.dropLayer();
+  }
  
   render() {
     const { activeLayers } = this.props
@@ -14,10 +25,13 @@ import LayerControl from '../layerControl/layerControl'
       flexDirection: 'column',
       padding: 5,
     }
+    const layers = activeLayers.map((al, i) => <LayerControl key={ al } layerName={ al } index={ i }/>)
     return (
-      <div className='active-layer-container' style={ActiveLayersStyle}>
+      <div className='active-layer-container' style={ActiveLayersStyle}
+        onDragOver={ e => this.onDragOver(e) }
+        onDrop={ e=> this.onDrop(e) }>
         {
-          activeLayers.map(al => <LayerControl key={ al } layerName={ al }/>)
+          layers.reverse()
         }
       </div>
     );
@@ -29,6 +43,7 @@ import LayerControl from '../layerControl/layerControl'
 // }
 
 const mapDispatchToProps = {
+  dropLayer
 }
 
 const mapStateToProps = state => {

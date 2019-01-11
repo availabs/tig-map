@@ -121,7 +121,7 @@ const ActionBar = ({ actions }) =>
   <ActionBarContainer>
     {
       actions.map((a, i) =>
-        <IconWrapper>
+        <IconWrapper key={ i }>
           <a.Icon data-tip
             data-for={ `action-bar-${ i }` }
             onClick={ a.action }/>

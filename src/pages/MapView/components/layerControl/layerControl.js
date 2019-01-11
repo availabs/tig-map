@@ -16,7 +16,8 @@ import {
 import {
   removeLayer,
   toggleLayerVisibility,
-  toggleModal
+  toggleModal,
+  updateDrag
 } from '../../store/MapStore'
 
 // import deepEqual from 'deep-equal'
@@ -40,9 +41,17 @@ const ModalToggle = ({ layer, layerName, toggle }) =>
   state = {
     showConfig: true
   }
+
+  onDragStart(e, layerName, index) {
+    this.props.updateDrag({ dragging: layerName })
+  }
+  onDragOver(e, index) {
+    e.preventDefault()
+    this.props.updateDrag({ dragover: index })
+  }
   
   render() {
-    const { layer, layerName, theme } = this.props
+    const { layer, layerName, theme, index } = this.props
     let LayerControlStyle = {
       width: '100%',
       display: 'flex',
@@ -65,7 +74,9 @@ const ModalToggle = ({ layer, layerName, toggle }) =>
 
 // console.log('<LayerControl.render>', layer, layer.loading)
     return (
-      <div>
+      <div draggable={ true }
+        onDragStart={ e => this.onDragStart(e, layerName, index) }
+        onDragOver={ e => this.onDragOver(e, index) }>
         <div className='active-layer-container' style={LayerControlStyle}>
           <LayerHeader 
             layerName={layerName}
@@ -100,7 +111,8 @@ LayerControl.defaultProps = {
 const mapDispatchToProps = {
   removeLayer,
   toggleLayerVisibility,
-  toggleModal
+  toggleModal,
+  updateDrag
 }
 
 const mapStateToProps = (state,ownProps) => {
