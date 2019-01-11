@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import { Switch } from 'react-router-dom';
 
 import { login } from './store/modules/user';
+
+import { auth } from './store/modules/user';
 // comp
 import Layout from './layouts/Layout'
 import Routes from './routes'
@@ -23,30 +25,18 @@ class App extends Component {
   }
 
   componentWillMount() {
-    if (typeof Storage !== 'undefined' && localStorage.getItem('user')) {
-      try {
-        const user = JSON.parse(localStorage.getItem('user'));
-        //console.log('===== App sent auth user request =====');
-        this.setState({ isAuthenticating: true });
-        this.props.login(user);
-      } catch (err) {
-       // console.log('there is an load auth error',err)
-        this.setState({ isAuthenticating: false });
-        localStorage.removeItem('user');
-        console.error(err);
-      }
-    } else {
-      this.setState({ isAuthenticating: false });
-    }
+    this.props.auth();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.user.attempts) {
+  componentWillReceiveProps(newProps) {
+console.log("<App.componentWillReceiveProps>",newProps.user)
+    if (newProps.user.attempts) {
       this.setState({ isAuthenticating: false });
     }
   }
 
   render() {
+console.log("USER:",this.props.user)
     return (
       <ThemeProvider theme={theme}>
         <div className="all-wrapper solid-bg-all">
@@ -57,8 +47,8 @@ class App extends Component {
     	    			<Layout
                   key = {i}
                   { ...route }
-                  isAuthenticating = {this.state.isAuthenticating}
-                  authed = { this.props.isAuthenticated }
+                  isAuthenticating = {this.props.user.attempts === 0}
+                  authed = { this.props.user.authed }
                   router = {this.props.router}
                   user = {this.props.user}
                   menuSettings = { route.menuSettings ?  route.menuSettings  : {} }
@@ -81,10 +71,9 @@ class App extends Component {
 
 const mapStateToProps = state => {
   return {
-    isAuthenticated: !!state.user.authed,
     user: state.user,
     router: state.router
   };
 };
  
-export default connect(mapStateToProps, { login })(App);
+export default connect(mapStateToProps, { auth })(App);

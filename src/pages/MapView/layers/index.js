@@ -5,6 +5,6 @@ import buildingsLayer from "./buildingsLayer"
 
 export default {
 	parcelLayer,
-	buildings
+	buildings,
 	buildingsLayer
 }

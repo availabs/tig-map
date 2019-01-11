@@ -22,6 +22,7 @@ const mapStateToProps = state => ({
 export default {
 	icon: 'os-icon-map',
 	path: '/irvs',
+  auth: true,
 	exact: true,
 	mainNav: true,
   menuSettings: {
@@ -33,6 +34,5 @@ export default {
     style: 'color-style-default'  
   },
   name: 'IRVS Editor',
-	auth: false,
 	component: connect(mapStateToProps, mapDispatchToProps)(IrvsContainer)
 }
