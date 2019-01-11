@@ -139,8 +139,12 @@ const initialState = {
 // ------------------------------------
 const ACTION_HANDLERS = {
   [USER_LOGIN]: (state=initialState, action) => {
-    let newState = Object.assign({}, newState, ...action.user, { authed: true });
-    ++newState.attempts;
+    let newState = {
+      ...state,
+      ...action.user,
+      authed: true,
+      attempts: ++state.attempts
+    }
     setUserToken(action.user);
     return newState;
   },

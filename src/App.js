@@ -36,7 +36,6 @@ console.log("<App.componentWillReceiveProps>",newProps.user)
   }
 
   render() {
-console.log("USER:",this.props.user)
     return (
       <ThemeProvider theme={theme}>
         <div className="all-wrapper solid-bg-all">
@@ -47,7 +46,7 @@ console.log("USER:",this.props.user)
     	    			<Layout
                   key = {i}
                   { ...route }
-                  isAuthenticating = {this.props.user.attempts === 0}
+                  isAuthenticating = { this.state.isAuthenticating }
                   authed = { this.props.user.authed }
                   router = {this.props.router}
                   user = {this.props.user}
