@@ -47,7 +47,6 @@ const HorizontalLegend = ({ theme, type, format, scale, range, domain, title }) 
           :
             range.map((r, i) => <div key={ i } style={ textBlock }>{ format(scale.invertExtent(r)[1]) }</div>)
         }
-        <div style={ textBlock }></div>
       </div>
     </div>
   )

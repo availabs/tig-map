@@ -101,6 +101,7 @@ export default {
 	icon: 'os-icon-map',
 	path: '/',
 	exact: true,
+  auth: true,
 	mainNav: true,
   menuSettings: {
     display: 'none',
@@ -111,6 +112,5 @@ export default {
     style: 'color-style-default'  
   },
   name: 'MapView',
-	auth: false,
 	component: connect(mapStateToProps, mapDispatchToProps)(MapView)
 }

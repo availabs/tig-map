@@ -7,6 +7,9 @@ import MapView from './pages/MapView'
 
 import IRVS from "./pages/irvs"
 
+import Login from "./pages/Login"
+import Signup from "./pages/Signup"
+
 
 // -- Util Routes
 // import Login from './pages/Login'
@@ -16,8 +19,12 @@ import NoMatch from './pages/404.js'
 const routes = [
   MapView,
   IRVS,
+  Login,
+  Signup,
   NoMatch
 ]
+
+console.log("??????????????",routes)
 
 
 export default routes

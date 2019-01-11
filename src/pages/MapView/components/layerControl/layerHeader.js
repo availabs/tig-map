@@ -253,7 +253,8 @@ const mapStateToProps = (state,ownProps) => {
     layer: state.map.layers[ownProps.layerName],
     label: state.map.layers[ownProps.layerName].name.toUpperCase(),
     layerType: state.map.layers[ownProps.layerName].type.toUpperCase(),
-    update: state.map.update
+    update: state.map.update,
+    id: ownProps.layerName
   }
 };
 
