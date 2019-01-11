@@ -9,14 +9,14 @@ const npmrdsLayer = {
 	mapBoxSources: {
     dfirm: {
     		type: 'vector',
-    		url: 'mapbox://am3081.adgnprsg'
+    		url: 'mapbox://am3081.209a3mf0'
         }
   	},
   	mapBoxLayers: [
 	   {
             'id': 'ny-flood-100',
             'source': 'dfirm',
-            'source-layer': 'nys_flood_nfhl',
+            'source-layer': 'nys_flood_preliminary',
             'filter': [
               "all",
               [
@@ -41,12 +41,12 @@ const npmrdsLayer = {
         {
             'id': 'ny-flood-500',
             'source': 'dfirm',
-            'source-layer': 'nys_flood_nfhl',
+            'source-layer': 'nys_flood_preliminary',
             'filter': [
               "all",
               [
                 "match",
-                ["get", "ZONE_SUBTY"],
+                ["get", "FLD_ZONE"],
                 [
                   "0.2 PCT ANNUAL CHANCE FLOOD HAZARD"
                 ],
