@@ -26,12 +26,8 @@ export default {
 	exact: true,
 	mainNav: true,
   menuSettings: {
-    display: 'none',
     image: 'none',
-    scheme: 'color-scheme-dark', 
-    position: 'menu-position-left',
-    layout: 'menu-layout-mini',
-    style: 'color-style-default'  
+    scheme: 'color-scheme-light' 
   },
   name: 'IRVS Editor',
 	component: connect(mapStateToProps, mapDispatchToProps)(IrvsContainer)
