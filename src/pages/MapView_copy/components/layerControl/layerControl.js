@@ -5,7 +5,6 @@ import LayerHeader from './layerHeader'
 import LayerFilterPanel from './layerFilterPanel'
 
 import LegendSelector from "./legendSelector"
-import PanelHeaderAction from './panelHeaderAction';
 import styled from 'styled-components';
 import {
   PanelLabel,

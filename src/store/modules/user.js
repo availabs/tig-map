@@ -150,9 +150,10 @@ const ACTION_HANDLERS = {
   },
   [AUTH_FAILURE]: (state=initialState, action) => {
     removeUserToken()
-    let newState = initialState;
-    ++newState.attempts;
-console.log(AUTH_FAILURE,newState)
+    let newState = {
+      ...initialState,
+      attempts: 1
+    }
     return newState;
   },
   [USER_LOGOUT]: (state = initialState, action) => {

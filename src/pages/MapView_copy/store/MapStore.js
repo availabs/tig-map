@@ -1,4 +1,4 @@
-import layers from '../layers'
+import layers from 'src/layers'
 import LightTheme from 'components/common/themes/dark'
 // var update = require('react/lib/update')
 

@@ -18,8 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-export {default as SingleSelectFilter} from './single-select-filter';
-export {default as MultiSelectFilter} from './multi-select-filter';
-// export {default as TimeRangeFilter} from './time-range-filter';
-// export {default as RangeFilter} from './range-filter';
-export { default as DateFilter } from "./date-filter"
+import React from 'react';
+import ItemSelector from '../common/item-selector/item-selector';
+import {PanelLabel, SidePanelSection, Input} from '../common/styled-components';
+
+const SingleSelectFilter = ({filter, setFilter}) => (
+  <SidePanelSection >
+    <PanelLabel>{filter.name}</PanelLabel>
+    <Input 
+      type='date' 
+      value={filter.value} 
+      onChange={(e) => setFilter(e.target.value)}
+    />
+             
+  </SidePanelSection>
+)
+
+
+export default SingleSelectFilter;

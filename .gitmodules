@@ -1,0 +1,3 @@
+[submodule "src/pages/MapView"]
+	path = src/pages/MapView
+	url = https://github.com/availabs/MapView.git
