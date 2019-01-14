@@ -3,6 +3,7 @@ import { addLayers, removeLayers, addPopUp, toggleVisibility } from './utils'
 
 const npmrdsLayer = {
 	name: 'OSM Buildings',
+    type: '',
 	loading: false,
     visible: true,
 	mapBoxSources: {
@@ -34,7 +35,7 @@ const npmrdsLayer = {
                     15, 0,
                     15.05, ["get", "min_height"]
                 ],
-                'fill-extrusion-opacity': 0
+                'fill-extrusion-opacity': 0.6
             }
         }
     ],

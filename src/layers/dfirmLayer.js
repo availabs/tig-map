@@ -2,39 +2,61 @@ import { HOST } from './layerHost'
 import { addLayers, removeLayers, addPopUp, toggleVisibility } from './utils'
 
 const npmrdsLayer = {
-	name: 'OSM Buildings',
+	name: 'DFIRM Official',
+    type:'',
 	loading: false,
     visible: true,
 	mapBoxSources: {
-    nymtc_areas: {
+    dfirm: {
     		type: 'vector',
-    		url: 'mapbox://mapbox.mapbox-streets-v7'
+    		url: 'mapbox://am3081.adgnprsg'
         }
   	},
   	mapBoxLayers: [
 	   {
-            'id': '3d-buildings',
-            'source': 'composite',
-            'source-layer': 'building',
-            'filter': ['==', 'extrude', 'true'],
-            'type': 'fill-extrusion',
-            'minzoom': 14,
+            'id': 'ny-flood-100',
+            'source': 'dfirm',
+            'source-layer': 'nys_flood_nfhl',
+            'filter': [
+              "all",
+              [
+                "match",
+                ["get", "FLD_ZONE"],
+                [
+                  "A",
+                  "AE",
+                  "AH",
+                  "AO",
+                  "VE"
+                ],
+                true,
+                false
+              ]
+            ],
+            'type': 'fill',
             'paint': {
-                'fill-extrusion-color': '#aaa',
-
-                // use an 'interpolate' expression to add a smooth transition effect to the
-                // buildings as the user zooms in
-                'fill-extrusion-height': [
-                    "interpolate", ["linear"], ["zoom"],
-                    15, 0,
-                    15.05, ["get", "height"]
+                'fill-color': '#35caf3',
+            }
+        },
+        {
+            'id': 'ny-flood-500',
+            'source': 'dfirm',
+            'source-layer': 'nys_flood_nfhl',
+            'filter': [
+              "all",
+              [
+                "match",
+                ["get", "ZONE_SUBTY"],
+                [
+                  "0.2 PCT ANNUAL CHANCE FLOOD HAZARD"
                 ],
-                'fill-extrusion-base': [
-                    "interpolate", ["linear"], ["zoom"],
-                    15, 0,
-                    15.05, ["get", "min_height"]
-                ],
-                'fill-extrusion-opacity': 0
+                true,
+                false
+              ]
+            ],
+            'type': 'fill',
+            'paint': {
+                'fill-color': '#1806e5',
             }
         }
     ],
