@@ -1,5 +1,5 @@
 import { HOST } from './layerHost'
-import { addLayers, removeLayers, addPopUp, toggleVisibility } from './utils'
+import { addLayers, removeLayers, addPopUp, toggleVisibility } from 'pages/MapView/layers/utils'
 
 const npmrdsLayer = {
 	name: 'DFIRM Official',

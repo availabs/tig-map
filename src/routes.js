@@ -4,6 +4,7 @@
 
 // import PublicPlan from './pages/PublicPlan'
 import MapView from './pages/MapView'
+import MapPage from "./pages/MapPage"
 
 import IRVS from "./pages/irvs"
 
@@ -18,6 +19,7 @@ import NoMatch from './pages/404.js'
 
 const routes = [
   MapView,
+  MapPage,
   IRVS,
   Login,
   Signup,
