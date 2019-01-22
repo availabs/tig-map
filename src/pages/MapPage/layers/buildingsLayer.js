@@ -5,7 +5,7 @@ import {
     ArrowRight
 } from "components/common/icons"
 
-import MapLayer from "src/AvlMap/MapLayer"
+import MapLayer from "AvlMap/MapLayer"
 
 const buildingsLayer = new MapLayer("Buildings Layer", {
   active: false,

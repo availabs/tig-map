@@ -1,10 +1,15 @@
 import React from "react"
 
+import {
+    ArrowDown,
+    ArrowRight
+} from "components/common/icons"
+
 import store from "store"
 import { falcorGraph } from "store/falcorGraph"
 import { update } from "utils/redux-falcor/components/duck"
 
-import MapLayer from "src/AvlMap/MapLayer"
+import MapLayer from "AvlMap/MapLayer"
 
 import {
     scaleQuantile,
@@ -17,6 +22,7 @@ import { fnum } from "utils/sheldusUtils"
 import COLOR_RANGES from "constants/color-ranges"
 
 import ParcelLayerModal from "./modals/ParcelLayerModal"
+import ParcelOverview from "./infoboxes/ParcelOverview"
 
 export const MEASURES = [
     { value: "full_marke", name: "Full Market Value" },
@@ -58,7 +64,8 @@ export const getMeasureFormat = (measure, value) => {
             return `$${ fnum(value) }`;
     }
 }
-const QUANTILE_RANGE = COLOR_RANGES[5].reduce((a, c) => c.name === "RdYlBu" ? c.colors : a)
+// const QUANTILE_RANGE = COLOR_RANGES[5].reduce((a, c) => c.name === "RdYlBu" ? c.colors : a)
+const QUANTILE_RANGE = COLOR_RANGES[5].reduce((a, c) => c.name === "Spectral" ? c.colors : a)
 const NON_ORDINAL_LEGEND = {
   type: "quantile",
   types: ["quantile", "quantize"],
@@ -306,6 +313,19 @@ const parcelLayer = new ParcelLayer("Parcel Layer", {
     show: false,
     controlButton: true
   },
+  infoBoxes: {
+    overview: {
+      comp: () => <ParcelOverview geoids={ parcelLayer.filters.area.value }/>,
+      show: false
+    }
+  },
+  actions: [
+    {
+      Icon: ArrowRight,
+      action: ["toggleInfoBox", "overview"],
+      tooltip: "Toggle Overview"
+    }
+  ],
   filters: {
     area: {
       name: 'Area',
