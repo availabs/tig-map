@@ -39,6 +39,6 @@ export default {
     style: 'color-style-default'  
   },
   name: 'MapPage',
-	auth: false,
+	auth: true,
 	component: MapPage
 }
